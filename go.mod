@@ -7,6 +7,7 @@ toolchain go1.22.4
 require (
 	github.com/cosmos/gogoproto v1.5.0
 	github.com/rollkit/rollkit v0.13.7
+	github.com/stretchr/testify v1.9.0
 	google.golang.org/grpc v1.65.0
 )
 
@@ -66,7 +67,7 @@ require (
 	github.com/prometheus/procfs v0.12.0 // indirect
 	github.com/sasha-s/go-deadlock v0.3.1 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
-	github.com/stretchr/testify v1.9.0 // indirect
+	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7 // indirect
 	go.etcd.io/bbolt v1.3.7 // indirect
 	go.uber.org/multierr v1.11.0 // indirect

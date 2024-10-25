@@ -83,3 +83,10 @@ proto-lint:
 	@$(protoImage) buf lint proto/ --error-format=json
 
 .PHONY: proto-all proto-gen proto-format proto-lint
+
+## mock-gen: Re-generates DA mock
+mock-gen: mocks/Execute.go
+.PHONY: mock-gen
+
+mocks/Execute.go: execution.go .mockery.yaml
+	@mockery
