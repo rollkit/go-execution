@@ -65,15 +65,21 @@ test: vet
 	@go test -v -race -covermode=atomic -coverprofile=coverage.txt $(pkgs) -run $(run) -count=$(count)
 .PHONY: test
 
-### proto-gen: Generate protobuf files. Requires docker.
-#proto-gen:
-#	@echo "--> Generating Protobuf files"
-#	./proto/get_deps.sh
-#	./proto/gen.sh
-#.PHONY: proto-gen
-#
-### proto-lint: Lint protobuf files. Requires docker.
-#proto-lint:
-#	@echo "--> Linting Protobuf files"
-#	@$(DOCKER_BUF) lint --error-format=json
-#.PHONY: proto-lint
+protoVer=0.14.0
+protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
+protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(protoImageName)
+
+proto-all: proto-format proto-lint proto-gen
+
+proto-gen:
+	@echo "Generating protobuf files..."
+	@$(protoImage) sh ./scripts/protocgen.sh
+	@go mod tidy
+
+proto-format:
+	@$(protoImage) find ./ -name "*.proto" -exec clang-format -i {} \;
+
+proto-lint:
+	@$(protoImage) buf lint proto/ --error-format=json
+
+.PHONY: proto-all proto-gen proto-format proto-lint

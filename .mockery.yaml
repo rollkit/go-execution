@@ -1,0 +1,8 @@
+with-expecter: true
+packages:
+  github.com/LastL2/execution:
+    interfaces:
+      Execute:
+        config:
+          dir: mocks
+          outpkg: mocks

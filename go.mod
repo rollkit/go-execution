@@ -1,10 +1,14 @@
-module github.com/LastL2/go-execution
+module github.com/LastL2
 
 go 1.22
 
-toolchain go1.22.8
+toolchain go1.22.4
 
-require github.com/rollkit/rollkit v0.13.7
+require (
+	github.com/cosmos/gogoproto v1.5.0
+	github.com/rollkit/rollkit v0.13.7
+	google.golang.org/grpc v1.65.0
+)
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -14,7 +18,6 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cometbft/cometbft v0.38.7 // indirect
 	github.com/cometbft/cometbft-db v0.8.0 // indirect
-	github.com/cosmos/gogoproto v1.5.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.3.0 // indirect
 	github.com/dgraph-io/badger/v2 v2.2007.4 // indirect
@@ -74,8 +77,9 @@ require (
 	golang.org/x/sys v0.22.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240528184218-531527333157 // indirect
-	google.golang.org/grpc v1.65.0 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	lukechampine.com/blake3 v1.2.1 // indirect
 )
+
+// Add other dependencies as needed
