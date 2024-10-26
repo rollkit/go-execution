@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/LastL2/execution"
-	pb "github.com/LastL2/types"
+	"github.com/LastL2/go-execution"
+	pb "github.com/LastL2/go-execution/types"
 	"github.com/rollkit/rollkit/types"
 )
 

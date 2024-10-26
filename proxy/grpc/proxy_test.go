@@ -13,9 +13,9 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
 
-	"github.com/LastL2/mocks"
-	grpcproxy "github.com/LastL2/proxy/grpc"
-	pb "github.com/LastL2/types"
+	"github.com/LastL2/go-execution/mocks"
+	grpcproxy "github.com/LastL2/go-execution/proxy/grpc"
+	pb "github.com/LastL2/go-execution/types"
 )
 
 func TestProxy(t *testing.T) {

@@ -7,8 +7,8 @@ import (
 	"github.com/rollkit/rollkit/types"
 	"google.golang.org/grpc"
 
-	"github.com/LastL2/execution"
-	pb "github.com/LastL2/types"
+	"github.com/LastL2/go-execution"
+	pb "github.com/LastL2/go-execution/types"
 )
 
 // Client implements the execution.Execute interface using gRPC

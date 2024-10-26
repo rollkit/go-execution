@@ -1,4 +1,4 @@
-module github.com/LastL2
+module github.com/LastL2/go-execution
 
 go 1.22
 
