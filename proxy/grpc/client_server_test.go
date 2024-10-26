@@ -1,8 +1,6 @@
 package grpc_test
 
 import (
-	"context"
-	"net"
 	"testing"
 	"time"
 
@@ -20,44 +18,59 @@ import (
 
 func TestClientServer(t *testing.T) {
 	mockExec := mocks.NewMockExecute(t)
-	server := grpcproxy.NewServer(mockExec)
+	config := &grpcproxy.Config{
+		DefaultTimeout: 5 * time.Second,
+		MaxRequestSize: bufSize,
+	}
+	server := grpcproxy.NewServer(mockExec, config)
 
-	listener := bufconn.Listen(1024 * 1024)
+	listener := bufconn.Listen(bufSize)
 	s := grpc.NewServer()
 	pb.RegisterExecutionServiceServer(s, server)
 
 	go func() {
-		if err := s.Serve(listener); err != nil {
+		if err := s.Serve(listener); err != nil && err != grpc.ErrServerStopped {
 			t.Errorf("Server exited with error: %v", err)
 		}
 	}()
+	defer s.Stop()
 
-	ctx := context.Background()
-	conn, err := grpc.DialContext(ctx, "bufnet",
-		grpc.WithContextDialer(func(context.Context, string) (net.Conn, error) {
-			return listener.Dial()
-		}),
+	client := grpcproxy.NewClient()
+	client.SetConfig(config)
+
+	err := client.Start("bufnet",
+		grpc.WithContextDialer(dialer(listener)),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	require.NoError(t, err)
-	defer conn.Close()
+	defer client.Stop()
 
-	client := grpcproxy.NewClient(conn)
+	mockExec.On("GetTxs").Return([]types.Tx{}, nil).Maybe()
 
 	t.Run("InitChain", func(t *testing.T) {
-		genesisTime := time.Now().UTC()
+		genesisTime := time.Now().UTC().Truncate(time.Second)
 		initialHeight := uint64(1)
 		chainID := "test-chain"
-		expectedStateRoot := types.Hash{1, 2, 3}
+
+		// initialize a new Hash with a fixed size
+		expectedStateRoot := make([]byte, 32)
+		copy(expectedStateRoot, []byte{1, 2, 3})
+		var stateRootHash types.Hash
+		copy(stateRootHash[:], expectedStateRoot)
+
 		expectedMaxBytes := uint64(1000000)
 
-		mockExec.On("InitChain", genesisTime, initialHeight, chainID).
-			Return(expectedStateRoot, expectedMaxBytes, nil)
+		// convert time to Unix and back to ensure consistency
+		unixTime := genesisTime.Unix()
+		expectedTime := time.Unix(unixTime, 0).UTC()
+
+		mockExec.On("InitChain", expectedTime, initialHeight, chainID).
+			Return(stateRootHash, expectedMaxBytes, nil).Once()
 
 		stateRoot, maxBytes, err := client.InitChain(genesisTime, initialHeight, chainID)
 
 		require.NoError(t, err)
-		assert.Equal(t, expectedStateRoot, stateRoot)
+		assert.Equal(t, stateRootHash, stateRoot)
 		assert.Equal(t, expectedMaxBytes, maxBytes)
 		mockExec.AssertExpectations(t)
 	})

@@ -9,22 +9,44 @@ import (
 	"github.com/rollkit/rollkit/types"
 )
 
-// Server implements the gRPC server for execution service
 type Server struct {
 	pb.UnimplementedExecutionServiceServer
-	exec execution.Execute
+	exec   execution.Execute
+	config *Config
 }
 
-// NewServer creates a new gRPC server instance
-func NewServer(exec execution.Execute) pb.ExecutionServiceServer {
+func NewServer(exec execution.Execute, config *Config) pb.ExecutionServiceServer {
+	if config == nil {
+		config = DefaultConfig()
+	}
 	return &Server{
-		exec: exec,
+		exec:   exec,
+		config: config,
 	}
 }
 
+func (s *Server) validateAuth(ctx context.Context) error {
+	if s.config.JWTSecret != nil {
+		return s.validateJWT(ctx)
+	}
+	return nil
+}
+
+// TO-DO
+func (s *Server) validateJWT(_ context.Context) error {
+	return nil
+}
+
 func (s *Server) InitChain(ctx context.Context, req *pb.InitChainRequest) (*pb.InitChainResponse, error) {
+	if err := s.validateAuth(ctx); err != nil {
+		return nil, err
+	}
+
+	// Convert Unix timestamp to UTC time
+	genesisTime := time.Unix(req.GenesisTime, 0).UTC()
+
 	stateRoot, maxBytes, err := s.exec.InitChain(
-		time.Unix(req.GenesisTime, 0),
+		genesisTime,
 		req.InitialHeight,
 		req.ChainId,
 	)
