@@ -12,9 +12,9 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
 
-	grpcproxy "github.com/LastL2/go-execution/proxy/grpc"
-	"github.com/LastL2/go-execution/test"
-	pb "github.com/LastL2/go-execution/types"
+	grpcproxy "github.com/rollkit/go-execution/proxy/grpc"
+	"github.com/rollkit/go-execution/test"
+	pb "github.com/rollkit/go-execution/types"
 )
 
 const bufSize = 1024 * 1024

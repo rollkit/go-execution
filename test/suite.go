@@ -7,7 +7,7 @@ import (
 	"github.com/rollkit/rollkit/types"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/LastL2/go-execution"
+	"github.com/rollkit/go-execution"
 )
 
 type ExecuteSuite struct {

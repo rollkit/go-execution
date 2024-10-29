@@ -11,9 +11,9 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
 
-	"github.com/LastL2/go-execution/mocks"
-	grpcproxy "github.com/LastL2/go-execution/proxy/grpc"
-	pb "github.com/LastL2/go-execution/types"
+	"github.com/rollkit/go-execution/mocks"
+	grpcproxy "github.com/rollkit/go-execution/proxy/grpc"
+	pb "github.com/rollkit/go-execution/types"
 )
 
 func TestClientServer(t *testing.T) {

@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
-	jsonrpcproxy "github.com/LastL2/go-execution/proxy/jsonrpc"
-	"github.com/LastL2/go-execution/test"
+	jsonrpcproxy "github.com/rollkit/go-execution/proxy/jsonrpc"
+	"github.com/rollkit/go-execution/test"
 )
 
 type ProxyTestSuite struct {

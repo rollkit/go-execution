@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/LastL2/go-execution/mocks"
-	jsonrpcproxy "github.com/LastL2/go-execution/proxy/jsonrpc"
+	"github.com/rollkit/go-execution/mocks"
+	jsonrpcproxy "github.com/rollkit/go-execution/proxy/jsonrpc"
 )
 
 func TestClientServer(t *testing.T) {

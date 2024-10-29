@@ -7,7 +7,7 @@ import (
 	"github.com/rollkit/rollkit/types"
 	"google.golang.org/grpc"
 
-	pb "github.com/LastL2/go-execution/types"
+	pb "github.com/rollkit/go-execution/types"
 )
 
 type Client struct {
