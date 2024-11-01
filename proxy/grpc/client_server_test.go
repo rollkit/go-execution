@@ -13,7 +13,7 @@ import (
 
 	"github.com/rollkit/go-execution/mocks"
 	grpcproxy "github.com/rollkit/go-execution/proxy/grpc"
-	pb "github.com/rollkit/go-execution/types"
+	pb "github.com/rollkit/go-execution/types/pb/execution"
 )
 
 func TestClientServer(t *testing.T) {

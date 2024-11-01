@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/rollkit/go-execution"
-	pb "github.com/rollkit/go-execution/types"
+	pb "github.com/rollkit/go-execution/types/pb/execution"
 	"github.com/rollkit/rollkit/types"
 )
 

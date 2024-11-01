@@ -69,20 +69,24 @@ protoVer=0.14.0
 protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
 protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(protoImageName)
 
-proto-all: proto-format proto-lint proto-gen
+## check-proto-deps: Check protobuf deps
+check-proto-deps:
+ifeq (,$(shell which protoc-gen-gocosmos))
+	@go install github.com/cosmos/gogoproto/protoc-gen-gocosmos@latest
+endif
+.PHONY: check-proto-deps
 
-proto-gen:
-	@echo "Generating protobuf files..."
-	@$(protoImage) sh ./scripts/protocgen.sh
-	@go mod tidy
+## proto-gen: Generate protobuf files
+proto-gen: check-proto-deps
+	@echo "--> Generating Protobuf files"
+	@go run github.com/bufbuild/buf/cmd/buf@latest generate --path proto/execution
+.PHONY: proto-gen
 
-proto-format:
-	@$(protoImage) find ./ -name "*.proto" -exec clang-format -i {} \;
-
-proto-lint:
-	@$(protoImage) buf lint proto/ --error-format=json
-
-.PHONY: proto-all proto-gen proto-format proto-lint
+## proto-lint: Lint protobuf files.
+proto-lint: check-proto-deps
+	@echo "--> Linting Protobuf files"
+	@go run github.com/bufbuild/buf/cmd/buf@latest lint --error-format=json
+.PHONY: proto-lint
 
 ## mock-gen: Re-generates DA mock
 mock-gen: mocks/Execute.go

@@ -14,7 +14,7 @@ import (
 
 	grpcproxy "github.com/rollkit/go-execution/proxy/grpc"
 	"github.com/rollkit/go-execution/test"
-	pb "github.com/rollkit/go-execution/types"
+	pb "github.com/rollkit/go-execution/types/pb/execution"
 )
 
 const bufSize = 1024 * 1024

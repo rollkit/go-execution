@@ -4,7 +4,6 @@ deps:
 build:
   roots:
     - proto
-    - third_party/proto
 lint:
   use:
     - STANDARD
@@ -22,7 +21,6 @@ lint:
     - SERVICE_SUFFIX
     - UNARY_RPC
   ignore:
-    - tendermint
 breaking:
   use:
     - FILE
