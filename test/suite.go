@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rollkit/rollkit/types"
+	"github.com/rollkit/go-execution/types"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/rollkit/go-execution"

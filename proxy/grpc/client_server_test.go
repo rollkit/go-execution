@@ -4,7 +4,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rollkit/rollkit/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -13,6 +12,7 @@ import (
 
 	"github.com/rollkit/go-execution/mocks"
 	grpcproxy "github.com/rollkit/go-execution/proxy/grpc"
+	"github.com/rollkit/go-execution/types"
 	pb "github.com/rollkit/go-execution/types/pb/execution"
 )
 

@@ -3,7 +3,7 @@ package test
 import (
 	"time"
 
-	"github.com/rollkit/rollkit/types"
+	"github.com/rollkit/go-execution/types"
 )
 
 // Execute is a dummy implementation of the Execute interface for testing

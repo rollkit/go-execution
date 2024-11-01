@@ -5,12 +5,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rollkit/rollkit/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/rollkit/go-execution/mocks"
 	jsonrpcproxy "github.com/rollkit/go-execution/proxy/jsonrpc"
+	"github.com/rollkit/go-execution/types"
 )
 
 func TestClientServer(t *testing.T) {

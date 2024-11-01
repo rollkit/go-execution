@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/rollkit/rollkit/types"
+	"github.com/rollkit/go-execution/types"
 )
 
 type Client struct {

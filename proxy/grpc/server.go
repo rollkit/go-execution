@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/rollkit/go-execution"
+	"github.com/rollkit/go-execution/types"
 	pb "github.com/rollkit/go-execution/types/pb/execution"
-	"github.com/rollkit/rollkit/types"
 )
 
 type Server struct {

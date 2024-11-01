@@ -1,6 +1,6 @@
 with-expecter: true
 packages:
-  github.com/rollkit/go-execution/mocks:
+  github.com/rollkit/go-execution:
     interfaces:
       Execute:
         config:

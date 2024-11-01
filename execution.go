@@ -3,7 +3,7 @@ package execution
 import (
 	"time"
 
-	"github.com/rollkit/rollkit/types"
+	"github.com/rollkit/go-execution/types"
 )
 
 // Execute defines a common interface for interacting with the execution client.
