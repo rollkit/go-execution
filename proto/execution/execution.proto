@@ -1,7 +1,7 @@
 syntax = "proto3";
 package execution;
 
-option go_package = "github.com/LastL2/types/pb/execution";
+option go_package = "github.com/rollkit/types/pb/execution";
 
 service ExecutionService {
   rpc InitChain(InitChainRequest) returns (InitChainResponse) {}
@@ -23,9 +23,7 @@ message InitChainResponse {
 
 message GetTxsRequest {}
 
-message GetTxsResponse {
-  repeated bytes txs = 1;
-}
+message GetTxsResponse { repeated bytes txs = 1; }
 
 message ExecuteTxsRequest {
   repeated bytes txs = 1;
@@ -39,8 +37,6 @@ message ExecuteTxsResponse {
   uint64 max_bytes = 2;
 }
 
-message SetFinalRequest {
-  uint64 block_height = 1;
-}
+message SetFinalRequest { uint64 block_height = 1; }
 
 message SetFinalResponse {}
