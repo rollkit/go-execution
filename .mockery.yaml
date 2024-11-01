@@ -1,6 +1,6 @@
 with-expecter: true
 packages:
-  github.com/LastL2/execution:
+  github.com/rollkit/go-execution/mocks:
     interfaces:
       Execute:
         config:
