@@ -65,15 +65,32 @@ test: vet
 	@go test -v -race -covermode=atomic -coverprofile=coverage.txt $(pkgs) -run $(run) -count=$(count)
 .PHONY: test
 
-### proto-gen: Generate protobuf files. Requires docker.
-#proto-gen:
-#	@echo "--> Generating Protobuf files"
-#	./proto/get_deps.sh
-#	./proto/gen.sh
-#.PHONY: proto-gen
-#
-### proto-lint: Lint protobuf files. Requires docker.
-#proto-lint:
-#	@echo "--> Linting Protobuf files"
-#	@$(DOCKER_BUF) lint --error-format=json
-#.PHONY: proto-lint
+protoVer=0.14.0
+protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
+protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(protoImageName)
+
+## check-proto-deps: Check protobuf deps
+check-proto-deps:
+ifeq (,$(shell which protoc-gen-gocosmos))
+	@go install github.com/cosmos/gogoproto/protoc-gen-gocosmos@latest
+endif
+.PHONY: check-proto-deps
+
+## proto-gen: Generate protobuf files
+proto-gen: check-proto-deps
+	@echo "--> Generating Protobuf files"
+	@go run github.com/bufbuild/buf/cmd/buf@latest generate --path proto/execution
+.PHONY: proto-gen
+
+## proto-lint: Lint protobuf files.
+proto-lint: check-proto-deps
+	@echo "--> Linting Protobuf files"
+	@go run github.com/bufbuild/buf/cmd/buf@latest lint --error-format=json
+.PHONY: proto-lint
+
+## mock-gen: Re-generates DA mock
+mock-gen: mocks/Execute.go
+.PHONY: mock-gen
+
+mocks/Execute.go: execution.go .mockery.yaml
+	@mockery

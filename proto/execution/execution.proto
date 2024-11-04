@@ -1,0 +1,42 @@
+syntax = "proto3";
+package execution;
+
+option go_package = "github.com/rollkit/types/pb/execution";
+
+service ExecutionService {
+  rpc InitChain(InitChainRequest) returns (InitChainResponse) {}
+  rpc GetTxs(GetTxsRequest) returns (GetTxsResponse) {}
+  rpc ExecuteTxs(ExecuteTxsRequest) returns (ExecuteTxsResponse) {}
+  rpc SetFinal(SetFinalRequest) returns (SetFinalResponse) {}
+}
+
+message InitChainRequest {
+  int64 genesis_time = 1;
+  uint64 initial_height = 2;
+  string chain_id = 3;
+}
+
+message InitChainResponse {
+  bytes state_root = 1;
+  uint64 max_bytes = 2;
+}
+
+message GetTxsRequest {}
+
+message GetTxsResponse { repeated bytes txs = 1; }
+
+message ExecuteTxsRequest {
+  repeated bytes txs = 1;
+  uint64 block_height = 2;
+  int64 timestamp = 3;
+  bytes prev_state_root = 4;
+}
+
+message ExecuteTxsResponse {
+  bytes updated_state_root = 1;
+  uint64 max_bytes = 2;
+}
+
+message SetFinalRequest { uint64 block_height = 1; }
+
+message SetFinalResponse {}
