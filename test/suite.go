@@ -1,7 +1,6 @@
 package test
 
 import (
-	"testing"
 	"time"
 
 	"github.com/stretchr/testify/suite"
@@ -57,8 +56,4 @@ type DummyTestSuite struct {
 
 func (s *DummyTestSuite) SetupTest() {
 	s.Exec = NewExecute()
-}
-
-func TestDummySuite(t *testing.T) {
-	suite.Run(t, new(DummyTestSuite))
 }
