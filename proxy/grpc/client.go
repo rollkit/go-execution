@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/rollkit/go-execution/types"
 	"google.golang.org/grpc"
 
+	"github.com/rollkit/go-execution/types"
 	pb "github.com/rollkit/go-execution/types/pb/execution"
 )
 
