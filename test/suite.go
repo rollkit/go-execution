@@ -4,10 +4,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rollkit/go-execution/types"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/rollkit/go-execution"
+	"github.com/rollkit/go-execution/types"
 )
 
 type ExecuteSuite struct {

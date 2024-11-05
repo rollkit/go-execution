@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/rollkit/go-execution/types"
 	"google.golang.org/grpc"
 
+	"github.com/rollkit/go-execution/types"
 	pb "github.com/rollkit/go-execution/types/pb/execution"
 )
 
@@ -30,7 +30,7 @@ func (c *Client) SetConfig(config *Config) {
 
 func (c *Client) Start(target string, opts ...grpc.DialOption) error {
 	var err error
-	c.conn, err = grpc.Dial(target, opts...) // Changed from grpc.NewClient to grpc.Dial
+	c.conn, err = grpc.NewClient(target, opts...)
 	if err != nil {
 		return err
 	}
