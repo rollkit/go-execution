@@ -17,7 +17,7 @@ import (
 )
 
 func TestClientServer(t *testing.T) {
-	mockExec := mocks.NewMockExecute(t)
+	mockExec := mocks.NewMockExecutor(t)
 	config := &grpcproxy.Config{
 		DefaultTimeout: 5 * time.Second,
 		MaxRequestSize: bufSize,

@@ -14,7 +14,7 @@ import (
 )
 
 func TestClientServer(t *testing.T) {
-	mockExec := mocks.NewMockExecute(t)
+	mockExec := mocks.NewMockExecutor(t)
 	config := &jsonrpcproxy.Config{
 		DefaultTimeout: 5 * time.Second,
 		MaxRequestSize: 1024 * 1024,
