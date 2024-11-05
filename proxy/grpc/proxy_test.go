@@ -26,14 +26,14 @@ func dialer(listener *bufconn.Listener) func(context.Context, string) (net.Conn,
 }
 
 type ProxyTestSuite struct {
-	test.ExecuteSuite
+	test.ExecutorSuite
 	server  *grpc.Server
 	client  *grpcproxy.Client
 	cleanup func()
 }
 
 func (s *ProxyTestSuite) SetupTest() {
-	exec := test.NewExecute()
+	exec := test.NewDummyExecutor()
 	config := &grpcproxy.Config{
 		DefaultTimeout: time.Second,
 		MaxRequestSize: bufSize,
