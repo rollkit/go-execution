@@ -7,11 +7,11 @@ import (
 )
 
 type DummyTestSuite struct {
-	ExecuteSuite
+	ExecutorSuite
 }
 
 func (s *DummyTestSuite) SetupTest() {
-	s.Exec = NewExecute()
+	s.Exec = NewDummyExecutor()
 }
 
 func TestDummySuite(t *testing.T) {

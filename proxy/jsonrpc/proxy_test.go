@@ -13,14 +13,14 @@ import (
 )
 
 type ProxyTestSuite struct {
-	test.ExecuteSuite
+	test.ExecutorSuite
 	server  *httptest.Server
 	client  *jsonrpcproxy.Client
 	cleanup func()
 }
 
 func (s *ProxyTestSuite) SetupTest() {
-	exec := test.NewExecute()
+	exec := test.NewDummyExecutor()
 	config := &jsonrpcproxy.Config{
 		DefaultTimeout: time.Second,
 		MaxRequestSize: 1024 * 1024,

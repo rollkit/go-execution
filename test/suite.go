@@ -9,14 +9,14 @@ import (
 	"github.com/rollkit/go-execution/types"
 )
 
-// ExecuteSuite is a reusable test suite for Execution API implementations.
-type ExecuteSuite struct {
+// ExecutorSuite is a reusable test suite for Execution API implementations.
+type ExecutorSuite struct {
 	suite.Suite
-	Exec execution.Execute
+	Exec execution.Executor
 }
 
 // TestInitChain tests InitChain method.
-func (s *ExecuteSuite) TestInitChain() {
+func (s *ExecutorSuite) TestInitChain() {
 	genesisTime := time.Now().UTC()
 	initialHeight := uint64(1)
 	chainID := "test-chain"
@@ -28,14 +28,14 @@ func (s *ExecuteSuite) TestInitChain() {
 }
 
 // TestGetTxs tests GetTxs method.
-func (s *ExecuteSuite) TestGetTxs() {
+func (s *ExecutorSuite) TestGetTxs() {
 	txs, err := s.Exec.GetTxs()
 	s.Require().NoError(err)
 	s.NotNil(txs)
 }
 
 // TestExecuteTxs tests ExecuteTxs method.
-func (s *ExecuteSuite) TestExecuteTxs() {
+func (s *ExecutorSuite) TestExecuteTxs() {
 	txs := []types.Tx{[]byte("tx1"), []byte("tx2")}
 	blockHeight := uint64(1)
 	timestamp := time.Now().UTC()
@@ -48,7 +48,7 @@ func (s *ExecuteSuite) TestExecuteTxs() {
 }
 
 // TestSetFinal tests SetFinal method.
-func (s *ExecuteSuite) TestSetFinal() {
+func (s *ExecutorSuite) TestSetFinal() {
 	err := s.Exec.SetFinal(1)
 	s.Require().NoError(err)
 }
