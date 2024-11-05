@@ -48,11 +48,7 @@ func (s *Server) InitChain(ctx context.Context, req *pb.InitChainRequest) (*pb.I
 	// Convert Unix timestamp to UTC time
 	genesisTime := time.Unix(req.GenesisTime, 0).UTC()
 
-	stateRoot, maxBytes, err := s.exec.InitChain(
-		genesisTime,
-		req.InitialHeight,
-		req.ChainId,
-	)
+	stateRoot, maxBytes, err := s.exec.InitChain(context.TODO(), genesisTime, req.InitialHeight, req.ChainId)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +61,7 @@ func (s *Server) InitChain(ctx context.Context, req *pb.InitChainRequest) (*pb.I
 
 // GetTxs handles GetTxs method call from execution API.
 func (s *Server) GetTxs(ctx context.Context, req *pb.GetTxsRequest) (*pb.GetTxsResponse, error) {
-	txs, err := s.exec.GetTxs()
+	txs, err := s.exec.GetTxs(context.TODO())
 	if err != nil {
 		return nil, err
 	}
@@ -91,6 +87,7 @@ func (s *Server) ExecuteTxs(ctx context.Context, req *pb.ExecuteTxsRequest) (*pb
 	copy(prevStateRoot[:], req.PrevStateRoot)
 
 	updatedStateRoot, maxBytes, err := s.exec.ExecuteTxs(
+		context.TODO(),
 		txs,
 		req.BlockHeight,
 		time.Unix(req.Timestamp, 0),
@@ -108,7 +105,7 @@ func (s *Server) ExecuteTxs(ctx context.Context, req *pb.ExecuteTxsRequest) (*pb
 
 // SetFinal handles SetFinal method call from execution API.
 func (s *Server) SetFinal(ctx context.Context, req *pb.SetFinalRequest) (*pb.SetFinalResponse, error) {
-	err := s.exec.SetFinal(req.BlockHeight)
+	err := s.exec.SetFinal(context.TODO(), req.BlockHeight)
 	if err != nil {
 		return nil, err
 	}

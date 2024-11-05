@@ -1,11 +1,14 @@
 package grpc_test
 
 import (
+	"context"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
@@ -45,7 +48,7 @@ func TestClientServer(t *testing.T) {
 	require.NoError(t, err)
 	defer func() { _ = client.Stop() }()
 
-	mockExec.On("GetTxs").Return([]types.Tx{}, nil).Maybe()
+	mockExec.On("GetTxs", mock.Anything).Return([]types.Tx{}, nil).Maybe()
 
 	t.Run("InitChain", func(t *testing.T) {
 		genesisTime := time.Now().UTC().Truncate(time.Second)
@@ -64,10 +67,10 @@ func TestClientServer(t *testing.T) {
 		unixTime := genesisTime.Unix()
 		expectedTime := time.Unix(unixTime, 0).UTC()
 
-		mockExec.On("InitChain", expectedTime, initialHeight, chainID).
+		mockExec.On("InitChain", mock.Anything, expectedTime, initialHeight, chainID).
 			Return(stateRootHash, expectedMaxBytes, nil).Once()
 
-		stateRoot, maxBytes, err := client.InitChain(genesisTime, initialHeight, chainID)
+		stateRoot, maxBytes, err := client.InitChain(context.TODO(), genesisTime, initialHeight, chainID)
 
 		require.NoError(t, err)
 		assert.Equal(t, stateRootHash, stateRoot)

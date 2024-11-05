@@ -51,10 +51,7 @@ func (c *Client) Stop() error {
 }
 
 // InitChain initializes the blockchain with genesis information.
-func (c *Client) InitChain(genesisTime time.Time, initialHeight uint64, chainID string) (types.Hash, uint64, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), c.config.DefaultTimeout)
-	defer cancel()
-
+func (c *Client) InitChain(ctx context.Context, genesisTime time.Time, initialHeight uint64, chainID string) (types.Hash, uint64, error) {
 	resp, err := c.client.InitChain(ctx, &pb.InitChainRequest{
 		GenesisTime:   genesisTime.Unix(),
 		InitialHeight: initialHeight,
@@ -71,10 +68,7 @@ func (c *Client) InitChain(genesisTime time.Time, initialHeight uint64, chainID 
 }
 
 // GetTxs retrieves all available transactions from the execution client's mempool.
-func (c *Client) GetTxs() ([]types.Tx, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), c.config.DefaultTimeout)
-	defer cancel()
-
+func (c *Client) GetTxs(ctx context.Context) ([]types.Tx, error) {
 	resp, err := c.client.GetTxs(ctx, &pb.GetTxsRequest{})
 	if err != nil {
 		return nil, err
@@ -89,10 +83,7 @@ func (c *Client) GetTxs() ([]types.Tx, error) {
 }
 
 // ExecuteTxs executes a set of transactions to produce a new block header.
-func (c *Client) ExecuteTxs(txs []types.Tx, blockHeight uint64, timestamp time.Time, prevStateRoot types.Hash) (types.Hash, uint64, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), c.config.DefaultTimeout)
-	defer cancel()
-
+func (c *Client) ExecuteTxs(ctx context.Context, txs []types.Tx, blockHeight uint64, timestamp time.Time, prevStateRoot types.Hash) (types.Hash, uint64, error) {
 	req := &pb.ExecuteTxsRequest{
 		Txs:           make([][]byte, len(txs)),
 		BlockHeight:   blockHeight,
@@ -115,10 +106,7 @@ func (c *Client) ExecuteTxs(txs []types.Tx, blockHeight uint64, timestamp time.T
 }
 
 // SetFinal marks a block at the given height as final.
-func (c *Client) SetFinal(blockHeight uint64) error {
-	ctx, cancel := context.WithTimeout(context.Background(), c.config.DefaultTimeout)
-	defer cancel()
-
+func (c *Client) SetFinal(ctx context.Context, blockHeight uint64) error {
 	_, err := c.client.SetFinal(ctx, &pb.SetFinalRequest{
 		BlockHeight: blockHeight,
 	})
