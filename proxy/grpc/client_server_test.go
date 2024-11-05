@@ -38,7 +38,7 @@ func TestClientServer(t *testing.T) {
 	client := grpcproxy.NewClient()
 	client.SetConfig(config)
 
-	err := client.Start("bufnet",
+	err := client.Start("passthrough://bufnet",
 		grpc.WithContextDialer(dialer(listener)),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
