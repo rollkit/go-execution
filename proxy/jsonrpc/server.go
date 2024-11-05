@@ -12,12 +12,12 @@ import (
 
 // Server defines JSON-RPC proxy server for execution API.
 type Server struct {
-	exec   execution.Execute
+	exec   execution.Executor
 	config *Config
 }
 
 // NewServer initializes and returns a new Server instance with the given execution interface and configuration.
-func NewServer(exec execution.Execute, config *Config) *Server {
+func NewServer(exec execution.Executor, config *Config) *Server {
 	if config == nil {
 		config = DefaultConfig()
 	}

@@ -6,8 +6,8 @@ import (
 	"github.com/rollkit/go-execution/types"
 )
 
-// Execute defines a common interface for interacting with the execution client.
-type Execute interface {
+// Executor defines a common interface for interacting with the execution client.
+type Executor interface {
 	// InitChain initializes the blockchain with genesis information.
 	InitChain(
 		genesisTime time.Time,
