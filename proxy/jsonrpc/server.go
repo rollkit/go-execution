@@ -10,11 +10,13 @@ import (
 	"github.com/rollkit/go-execution/types"
 )
 
+// Server defines JSON-RPC proxy server for execution API.
 type Server struct {
 	exec   execution.Execute
 	config *Config
 }
 
+// NewServer initializes and returns a new Server instance with the given execution interface and configuration.
 func NewServer(exec execution.Execute, config *Config) *Server {
 	if config == nil {
 		config = DefaultConfig()
@@ -200,5 +202,5 @@ func writeResponse(w http.ResponseWriter, id interface{}, result interface{}, er
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	_ = json.NewEncoder(w).Encode(response) // TODO(tzdybal): add proper error handling
 }

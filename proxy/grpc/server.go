@@ -9,12 +9,14 @@ import (
 	pb "github.com/rollkit/go-execution/types/pb/execution"
 )
 
+// Server defines a gRPC proxy server
 type Server struct {
 	pb.UnimplementedExecutionServiceServer
 	exec   execution.Execute
 	config *Config
 }
 
+// NewServer creates a new ExecutionService gRPC server with the given execution client and configuration.
 func NewServer(exec execution.Execute, config *Config) pb.ExecutionServiceServer {
 	if config == nil {
 		config = DefaultConfig()
@@ -37,6 +39,7 @@ func (s *Server) validateJWT(_ context.Context) error {
 	return nil
 }
 
+// InitChain handles InitChain method call from execution API.
 func (s *Server) InitChain(ctx context.Context, req *pb.InitChainRequest) (*pb.InitChainResponse, error) {
 	if err := s.validateAuth(ctx); err != nil {
 		return nil, err
@@ -60,6 +63,7 @@ func (s *Server) InitChain(ctx context.Context, req *pb.InitChainRequest) (*pb.I
 	}, nil
 }
 
+// GetTxs handles GetTxs method call from execution API.
 func (s *Server) GetTxs(ctx context.Context, req *pb.GetTxsRequest) (*pb.GetTxsResponse, error) {
 	txs, err := s.exec.GetTxs()
 	if err != nil {
@@ -76,6 +80,7 @@ func (s *Server) GetTxs(ctx context.Context, req *pb.GetTxsRequest) (*pb.GetTxsR
 	}, nil
 }
 
+// ExecuteTxs handles ExecuteTxs method call from execution API.
 func (s *Server) ExecuteTxs(ctx context.Context, req *pb.ExecuteTxsRequest) (*pb.ExecuteTxsResponse, error) {
 	txs := make([]types.Tx, len(req.Txs))
 	for i, tx := range req.Txs {
@@ -101,6 +106,7 @@ func (s *Server) ExecuteTxs(ctx context.Context, req *pb.ExecuteTxsRequest) (*pb
 	}, nil
 }
 
+// SetFinal handles SetFinal method call from execution API.
 func (s *Server) SetFinal(ctx context.Context, req *pb.SetFinalRequest) (*pb.SetFinalResponse, error) {
 	err := s.exec.SetFinal(req.BlockHeight)
 	if err != nil {

@@ -43,7 +43,7 @@ func TestClientServer(t *testing.T) {
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	require.NoError(t, err)
-	defer client.Stop()
+	defer func() { _ = client.Stop() }()
 
 	mockExec.On("GetTxs").Return([]types.Tx{}, nil).Maybe()
 

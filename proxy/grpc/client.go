@@ -10,24 +10,28 @@ import (
 	pb "github.com/rollkit/go-execution/types/pb/execution"
 )
 
+// Client defines gRPC proxy client
 type Client struct {
 	conn   *grpc.ClientConn
 	client pb.ExecutionServiceClient
 	config *Config
 }
 
+// NewClient creates a new instance of Client with default configuration.
 func NewClient() *Client {
 	return &Client{
 		config: DefaultConfig(),
 	}
 }
 
+// SetConfig sets the configuration for the Client instance.
 func (c *Client) SetConfig(config *Config) {
 	if config != nil {
 		c.config = config
 	}
 }
 
+// Start initializes the Client by creating a new gRPC connection and storing the ExecutionServiceClient instance.
 func (c *Client) Start(target string, opts ...grpc.DialOption) error {
 	var err error
 	c.conn, err = grpc.NewClient(target, opts...)
@@ -38,6 +42,7 @@ func (c *Client) Start(target string, opts ...grpc.DialOption) error {
 	return nil
 }
 
+// Stop stops the client by closing the underlying gRPC connection if it exists.
 func (c *Client) Stop() error {
 	if c.conn != nil {
 		return c.conn.Close()
@@ -45,6 +50,7 @@ func (c *Client) Stop() error {
 	return nil
 }
 
+// InitChain initializes the blockchain with genesis information.
 func (c *Client) InitChain(genesisTime time.Time, initialHeight uint64, chainID string) (types.Hash, uint64, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.config.DefaultTimeout)
 	defer cancel()
@@ -64,6 +70,7 @@ func (c *Client) InitChain(genesisTime time.Time, initialHeight uint64, chainID 
 	return stateRoot, resp.MaxBytes, nil
 }
 
+// GetTxs retrieves all available transactions from the execution client's mempool.
 func (c *Client) GetTxs() ([]types.Tx, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.config.DefaultTimeout)
 	defer cancel()
@@ -81,6 +88,7 @@ func (c *Client) GetTxs() ([]types.Tx, error) {
 	return txs, nil
 }
 
+// ExecuteTxs executes a set of transactions to produce a new block header.
 func (c *Client) ExecuteTxs(txs []types.Tx, blockHeight uint64, timestamp time.Time, prevStateRoot types.Hash) (types.Hash, uint64, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.config.DefaultTimeout)
 	defer cancel()
@@ -106,6 +114,7 @@ func (c *Client) ExecuteTxs(txs []types.Tx, blockHeight uint64, timestamp time.T
 	return updatedStateRoot, resp.MaxBytes, nil
 }
 
+// SetFinal marks a block at the given height as final.
 func (c *Client) SetFinal(blockHeight uint64) error {
 	ctx, cancel := context.WithTimeout(context.Background(), c.config.DefaultTimeout)
 	defer cancel()
