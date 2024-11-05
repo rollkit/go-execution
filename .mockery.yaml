@@ -2,7 +2,7 @@ with-expecter: true
 packages:
   github.com/rollkit/go-execution:
     interfaces:
-      Execute:
+      Executor:
         config:
           dir: mocks
           outpkg: mocks
