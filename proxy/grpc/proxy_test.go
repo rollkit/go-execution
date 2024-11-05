@@ -65,7 +65,7 @@ func (s *ProxyTestSuite) SetupTest() {
 	require.NoError(s.T(), err)
 
 	for i := 0; i < 10; i++ {
-		if _, err := client.GetTxs(); err == nil {
+		if _, err := client.GetTxs(context.TODO()); err == nil {
 			break
 		}
 		time.Sleep(100 * time.Millisecond)

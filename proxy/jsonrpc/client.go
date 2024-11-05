@@ -47,7 +47,7 @@ func (c *Client) Stop() error {
 }
 
 // InitChain initializes the blockchain with genesis information.
-func (c *Client) InitChain(genesisTime time.Time, initialHeight uint64, chainID string) (types.Hash, uint64, error) {
+func (c *Client) InitChain(ctx context.Context, genesisTime time.Time, initialHeight uint64, chainID string) (types.Hash, uint64, error) {
 	params := map[string]interface{}{
 		"genesis_time":   genesisTime.Unix(),
 		"initial_height": initialHeight,
@@ -59,7 +59,7 @@ func (c *Client) InitChain(genesisTime time.Time, initialHeight uint64, chainID 
 		MaxBytes  uint64 `json:"max_bytes"`
 	}
 
-	if err := c.call("init_chain", params, &result); err != nil {
+	if err := c.call(context.TODO(), "init_chain", params, &result); err != nil {
 		return types.Hash{}, 0, err
 	}
 
@@ -75,12 +75,12 @@ func (c *Client) InitChain(genesisTime time.Time, initialHeight uint64, chainID 
 }
 
 // GetTxs retrieves all available transactions from the execution client's mempool.
-func (c *Client) GetTxs() ([]types.Tx, error) {
+func (c *Client) GetTxs(context.Context) ([]types.Tx, error) {
 	var result struct {
 		Txs []string `json:"txs"`
 	}
 
-	if err := c.call("get_txs", nil, &result); err != nil {
+	if err := c.call(context.TODO(), "get_txs", nil, &result); err != nil {
 		return nil, err
 	}
 
@@ -97,7 +97,7 @@ func (c *Client) GetTxs() ([]types.Tx, error) {
 }
 
 // ExecuteTxs executes a set of transactions to produce a new block header.
-func (c *Client) ExecuteTxs(txs []types.Tx, blockHeight uint64, timestamp time.Time, prevStateRoot types.Hash) (types.Hash, uint64, error) {
+func (c *Client) ExecuteTxs(ctx context.Context, txs []types.Tx, blockHeight uint64, timestamp time.Time, prevStateRoot types.Hash) (types.Hash, uint64, error) {
 	// Encode txs to base64
 	encodedTxs := make([]string, len(txs))
 	for i, tx := range txs {
@@ -116,7 +116,7 @@ func (c *Client) ExecuteTxs(txs []types.Tx, blockHeight uint64, timestamp time.T
 		MaxBytes         uint64 `json:"max_bytes"`
 	}
 
-	if err := c.call("execute_txs", params, &result); err != nil {
+	if err := c.call(context.TODO(), "execute_txs", params, &result); err != nil {
 		return types.Hash{}, 0, err
 	}
 
@@ -132,15 +132,15 @@ func (c *Client) ExecuteTxs(txs []types.Tx, blockHeight uint64, timestamp time.T
 }
 
 // SetFinal marks a block at the given height as final.
-func (c *Client) SetFinal(blockHeight uint64) error {
+func (c *Client) SetFinal(ctx context.Context, blockHeight uint64) error {
 	params := map[string]interface{}{
 		"block_height": blockHeight,
 	}
 
-	return c.call("set_final", params, nil)
+	return c.call(context.TODO(), "set_final", params, nil)
 }
 
-func (c *Client) call(method string, params interface{}, result interface{}) error {
+func (c *Client) call(ctx context.Context, method string, params interface{}, result interface{}) error {
 	request := struct {
 		JSONRPC string      `json:"jsonrpc"`
 		Method  string      `json:"method"`
@@ -158,7 +158,7 @@ func (c *Client) call(method string, params interface{}, result interface{}) err
 		return fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	req, err := http.NewRequestWithContext(context.Background(), "POST", c.endpoint, bytes.NewReader(reqBody))
+	req, err := http.NewRequestWithContext(ctx, "POST", c.endpoint, bytes.NewReader(reqBody))
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
 	}

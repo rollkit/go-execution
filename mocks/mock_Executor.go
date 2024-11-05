@@ -3,7 +3,10 @@
 package mocks
 
 import (
+	context "context"
+
 	header "github.com/celestiaorg/go-header"
+
 	mock "github.com/stretchr/testify/mock"
 
 	time "time"
@@ -24,9 +27,9 @@ func (_m *MockExecutor) EXPECT() *MockExecutor_Expecter {
 	return &MockExecutor_Expecter{mock: &_m.Mock}
 }
 
-// ExecuteTxs provides a mock function with given fields: txs, blockHeight, timestamp, prevStateRoot
-func (_m *MockExecutor) ExecuteTxs(txs []types.Tx, blockHeight uint64, timestamp time.Time, prevStateRoot header.Hash) (header.Hash, uint64, error) {
-	ret := _m.Called(txs, blockHeight, timestamp, prevStateRoot)
+// ExecuteTxs provides a mock function with given fields: ctx, txs, blockHeight, timestamp, prevStateRoot
+func (_m *MockExecutor) ExecuteTxs(ctx context.Context, txs []types.Tx, blockHeight uint64, timestamp time.Time, prevStateRoot header.Hash) (header.Hash, uint64, error) {
+	ret := _m.Called(ctx, txs, blockHeight, timestamp, prevStateRoot)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ExecuteTxs")
@@ -35,25 +38,25 @@ func (_m *MockExecutor) ExecuteTxs(txs []types.Tx, blockHeight uint64, timestamp
 	var r0 header.Hash
 	var r1 uint64
 	var r2 error
-	if rf, ok := ret.Get(0).(func([]types.Tx, uint64, time.Time, header.Hash) (header.Hash, uint64, error)); ok {
-		return rf(txs, blockHeight, timestamp, prevStateRoot)
+	if rf, ok := ret.Get(0).(func(context.Context, []types.Tx, uint64, time.Time, header.Hash) (header.Hash, uint64, error)); ok {
+		return rf(ctx, txs, blockHeight, timestamp, prevStateRoot)
 	}
-	if rf, ok := ret.Get(0).(func([]types.Tx, uint64, time.Time, header.Hash) header.Hash); ok {
-		r0 = rf(txs, blockHeight, timestamp, prevStateRoot)
+	if rf, ok := ret.Get(0).(func(context.Context, []types.Tx, uint64, time.Time, header.Hash) header.Hash); ok {
+		r0 = rf(ctx, txs, blockHeight, timestamp, prevStateRoot)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(header.Hash)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func([]types.Tx, uint64, time.Time, header.Hash) uint64); ok {
-		r1 = rf(txs, blockHeight, timestamp, prevStateRoot)
+	if rf, ok := ret.Get(1).(func(context.Context, []types.Tx, uint64, time.Time, header.Hash) uint64); ok {
+		r1 = rf(ctx, txs, blockHeight, timestamp, prevStateRoot)
 	} else {
 		r1 = ret.Get(1).(uint64)
 	}
 
-	if rf, ok := ret.Get(2).(func([]types.Tx, uint64, time.Time, header.Hash) error); ok {
-		r2 = rf(txs, blockHeight, timestamp, prevStateRoot)
+	if rf, ok := ret.Get(2).(func(context.Context, []types.Tx, uint64, time.Time, header.Hash) error); ok {
+		r2 = rf(ctx, txs, blockHeight, timestamp, prevStateRoot)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -67,17 +70,18 @@ type MockExecutor_ExecuteTxs_Call struct {
 }
 
 // ExecuteTxs is a helper method to define mock.On call
+//   - ctx context.Context
 //   - txs []types.Tx
 //   - blockHeight uint64
 //   - timestamp time.Time
 //   - prevStateRoot header.Hash
-func (_e *MockExecutor_Expecter) ExecuteTxs(txs interface{}, blockHeight interface{}, timestamp interface{}, prevStateRoot interface{}) *MockExecutor_ExecuteTxs_Call {
-	return &MockExecutor_ExecuteTxs_Call{Call: _e.mock.On("ExecuteTxs", txs, blockHeight, timestamp, prevStateRoot)}
+func (_e *MockExecutor_Expecter) ExecuteTxs(ctx interface{}, txs interface{}, blockHeight interface{}, timestamp interface{}, prevStateRoot interface{}) *MockExecutor_ExecuteTxs_Call {
+	return &MockExecutor_ExecuteTxs_Call{Call: _e.mock.On("ExecuteTxs", ctx, txs, blockHeight, timestamp, prevStateRoot)}
 }
 
-func (_c *MockExecutor_ExecuteTxs_Call) Run(run func(txs []types.Tx, blockHeight uint64, timestamp time.Time, prevStateRoot header.Hash)) *MockExecutor_ExecuteTxs_Call {
+func (_c *MockExecutor_ExecuteTxs_Call) Run(run func(ctx context.Context, txs []types.Tx, blockHeight uint64, timestamp time.Time, prevStateRoot header.Hash)) *MockExecutor_ExecuteTxs_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].([]types.Tx), args[1].(uint64), args[2].(time.Time), args[3].(header.Hash))
+		run(args[0].(context.Context), args[1].([]types.Tx), args[2].(uint64), args[3].(time.Time), args[4].(header.Hash))
 	})
 	return _c
 }
@@ -87,14 +91,14 @@ func (_c *MockExecutor_ExecuteTxs_Call) Return(updatedStateRoot header.Hash, max
 	return _c
 }
 
-func (_c *MockExecutor_ExecuteTxs_Call) RunAndReturn(run func([]types.Tx, uint64, time.Time, header.Hash) (header.Hash, uint64, error)) *MockExecutor_ExecuteTxs_Call {
+func (_c *MockExecutor_ExecuteTxs_Call) RunAndReturn(run func(context.Context, []types.Tx, uint64, time.Time, header.Hash) (header.Hash, uint64, error)) *MockExecutor_ExecuteTxs_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetTxs provides a mock function with given fields:
-func (_m *MockExecutor) GetTxs() ([]types.Tx, error) {
-	ret := _m.Called()
+// GetTxs provides a mock function with given fields: ctx
+func (_m *MockExecutor) GetTxs(ctx context.Context) ([]types.Tx, error) {
+	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTxs")
@@ -102,19 +106,19 @@ func (_m *MockExecutor) GetTxs() ([]types.Tx, error) {
 
 	var r0 []types.Tx
 	var r1 error
-	if rf, ok := ret.Get(0).(func() ([]types.Tx, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(context.Context) ([]types.Tx, error)); ok {
+		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func() []types.Tx); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(context.Context) []types.Tx); ok {
+		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]types.Tx)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -128,13 +132,14 @@ type MockExecutor_GetTxs_Call struct {
 }
 
 // GetTxs is a helper method to define mock.On call
-func (_e *MockExecutor_Expecter) GetTxs() *MockExecutor_GetTxs_Call {
-	return &MockExecutor_GetTxs_Call{Call: _e.mock.On("GetTxs")}
+//   - ctx context.Context
+func (_e *MockExecutor_Expecter) GetTxs(ctx interface{}) *MockExecutor_GetTxs_Call {
+	return &MockExecutor_GetTxs_Call{Call: _e.mock.On("GetTxs", ctx)}
 }
 
-func (_c *MockExecutor_GetTxs_Call) Run(run func()) *MockExecutor_GetTxs_Call {
+func (_c *MockExecutor_GetTxs_Call) Run(run func(ctx context.Context)) *MockExecutor_GetTxs_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(context.Context))
 	})
 	return _c
 }
@@ -144,14 +149,14 @@ func (_c *MockExecutor_GetTxs_Call) Return(_a0 []types.Tx, _a1 error) *MockExecu
 	return _c
 }
 
-func (_c *MockExecutor_GetTxs_Call) RunAndReturn(run func() ([]types.Tx, error)) *MockExecutor_GetTxs_Call {
+func (_c *MockExecutor_GetTxs_Call) RunAndReturn(run func(context.Context) ([]types.Tx, error)) *MockExecutor_GetTxs_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// InitChain provides a mock function with given fields: genesisTime, initialHeight, chainID
-func (_m *MockExecutor) InitChain(genesisTime time.Time, initialHeight uint64, chainID string) (header.Hash, uint64, error) {
-	ret := _m.Called(genesisTime, initialHeight, chainID)
+// InitChain provides a mock function with given fields: ctx, genesisTime, initialHeight, chainID
+func (_m *MockExecutor) InitChain(ctx context.Context, genesisTime time.Time, initialHeight uint64, chainID string) (header.Hash, uint64, error) {
+	ret := _m.Called(ctx, genesisTime, initialHeight, chainID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for InitChain")
@@ -160,25 +165,25 @@ func (_m *MockExecutor) InitChain(genesisTime time.Time, initialHeight uint64, c
 	var r0 header.Hash
 	var r1 uint64
 	var r2 error
-	if rf, ok := ret.Get(0).(func(time.Time, uint64, string) (header.Hash, uint64, error)); ok {
-		return rf(genesisTime, initialHeight, chainID)
+	if rf, ok := ret.Get(0).(func(context.Context, time.Time, uint64, string) (header.Hash, uint64, error)); ok {
+		return rf(ctx, genesisTime, initialHeight, chainID)
 	}
-	if rf, ok := ret.Get(0).(func(time.Time, uint64, string) header.Hash); ok {
-		r0 = rf(genesisTime, initialHeight, chainID)
+	if rf, ok := ret.Get(0).(func(context.Context, time.Time, uint64, string) header.Hash); ok {
+		r0 = rf(ctx, genesisTime, initialHeight, chainID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(header.Hash)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(time.Time, uint64, string) uint64); ok {
-		r1 = rf(genesisTime, initialHeight, chainID)
+	if rf, ok := ret.Get(1).(func(context.Context, time.Time, uint64, string) uint64); ok {
+		r1 = rf(ctx, genesisTime, initialHeight, chainID)
 	} else {
 		r1 = ret.Get(1).(uint64)
 	}
 
-	if rf, ok := ret.Get(2).(func(time.Time, uint64, string) error); ok {
-		r2 = rf(genesisTime, initialHeight, chainID)
+	if rf, ok := ret.Get(2).(func(context.Context, time.Time, uint64, string) error); ok {
+		r2 = rf(ctx, genesisTime, initialHeight, chainID)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -192,16 +197,17 @@ type MockExecutor_InitChain_Call struct {
 }
 
 // InitChain is a helper method to define mock.On call
+//   - ctx context.Context
 //   - genesisTime time.Time
 //   - initialHeight uint64
 //   - chainID string
-func (_e *MockExecutor_Expecter) InitChain(genesisTime interface{}, initialHeight interface{}, chainID interface{}) *MockExecutor_InitChain_Call {
-	return &MockExecutor_InitChain_Call{Call: _e.mock.On("InitChain", genesisTime, initialHeight, chainID)}
+func (_e *MockExecutor_Expecter) InitChain(ctx interface{}, genesisTime interface{}, initialHeight interface{}, chainID interface{}) *MockExecutor_InitChain_Call {
+	return &MockExecutor_InitChain_Call{Call: _e.mock.On("InitChain", ctx, genesisTime, initialHeight, chainID)}
 }
 
-func (_c *MockExecutor_InitChain_Call) Run(run func(genesisTime time.Time, initialHeight uint64, chainID string)) *MockExecutor_InitChain_Call {
+func (_c *MockExecutor_InitChain_Call) Run(run func(ctx context.Context, genesisTime time.Time, initialHeight uint64, chainID string)) *MockExecutor_InitChain_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(time.Time), args[1].(uint64), args[2].(string))
+		run(args[0].(context.Context), args[1].(time.Time), args[2].(uint64), args[3].(string))
 	})
 	return _c
 }
@@ -211,22 +217,22 @@ func (_c *MockExecutor_InitChain_Call) Return(stateRoot header.Hash, maxBytes ui
 	return _c
 }
 
-func (_c *MockExecutor_InitChain_Call) RunAndReturn(run func(time.Time, uint64, string) (header.Hash, uint64, error)) *MockExecutor_InitChain_Call {
+func (_c *MockExecutor_InitChain_Call) RunAndReturn(run func(context.Context, time.Time, uint64, string) (header.Hash, uint64, error)) *MockExecutor_InitChain_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// SetFinal provides a mock function with given fields: blockHeight
-func (_m *MockExecutor) SetFinal(blockHeight uint64) error {
-	ret := _m.Called(blockHeight)
+// SetFinal provides a mock function with given fields: ctx, blockHeight
+func (_m *MockExecutor) SetFinal(ctx context.Context, blockHeight uint64) error {
+	ret := _m.Called(ctx, blockHeight)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SetFinal")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(uint64) error); ok {
-		r0 = rf(blockHeight)
+	if rf, ok := ret.Get(0).(func(context.Context, uint64) error); ok {
+		r0 = rf(ctx, blockHeight)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -240,14 +246,15 @@ type MockExecutor_SetFinal_Call struct {
 }
 
 // SetFinal is a helper method to define mock.On call
+//   - ctx context.Context
 //   - blockHeight uint64
-func (_e *MockExecutor_Expecter) SetFinal(blockHeight interface{}) *MockExecutor_SetFinal_Call {
-	return &MockExecutor_SetFinal_Call{Call: _e.mock.On("SetFinal", blockHeight)}
+func (_e *MockExecutor_Expecter) SetFinal(ctx interface{}, blockHeight interface{}) *MockExecutor_SetFinal_Call {
+	return &MockExecutor_SetFinal_Call{Call: _e.mock.On("SetFinal", ctx, blockHeight)}
 }
 
-func (_c *MockExecutor_SetFinal_Call) Run(run func(blockHeight uint64)) *MockExecutor_SetFinal_Call {
+func (_c *MockExecutor_SetFinal_Call) Run(run func(ctx context.Context, blockHeight uint64)) *MockExecutor_SetFinal_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(uint64))
+		run(args[0].(context.Context), args[1].(uint64))
 	})
 	return _c
 }
@@ -257,7 +264,7 @@ func (_c *MockExecutor_SetFinal_Call) Return(_a0 error) *MockExecutor_SetFinal_C
 	return _c
 }
 
-func (_c *MockExecutor_SetFinal_Call) RunAndReturn(run func(uint64) error) *MockExecutor_SetFinal_Call {
+func (_c *MockExecutor_SetFinal_Call) RunAndReturn(run func(context.Context, uint64) error) *MockExecutor_SetFinal_Call {
 	_c.Call.Return(run)
 	return _c
 }

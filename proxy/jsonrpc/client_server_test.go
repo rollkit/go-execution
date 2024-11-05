@@ -1,11 +1,13 @@
 package jsonrpc_test
 
 import (
+	"context"
 	"net/http/httptest"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
 	"github.com/rollkit/go-execution/mocks"
@@ -47,10 +49,10 @@ func TestClientServer(t *testing.T) {
 		unixTime := genesisTime.Unix()
 		expectedTime := time.Unix(unixTime, 0).UTC()
 
-		mockExec.On("InitChain", expectedTime, initialHeight, chainID).
+		mockExec.On("InitChain", mock.Anything, expectedTime, initialHeight, chainID).
 			Return(stateRootHash, expectedMaxBytes, nil).Once()
 
-		stateRoot, maxBytes, err := client.InitChain(genesisTime, initialHeight, chainID)
+		stateRoot, maxBytes, err := client.InitChain(context.TODO(), genesisTime, initialHeight, chainID)
 
 		require.NoError(t, err)
 		assert.Equal(t, stateRootHash, stateRoot)
@@ -60,9 +62,9 @@ func TestClientServer(t *testing.T) {
 
 	t.Run("GetTxs", func(t *testing.T) {
 		expectedTxs := []types.Tx{[]byte("tx1"), []byte("tx2")}
-		mockExec.On("GetTxs").Return(expectedTxs, nil).Once()
+		mockExec.On("GetTxs", mock.Anything).Return(expectedTxs, nil).Once()
 
-		txs, err := client.GetTxs()
+		txs, err := client.GetTxs(context.TODO())
 		require.NoError(t, err)
 		assert.Equal(t, expectedTxs, txs)
 		mockExec.AssertExpectations(t)
@@ -85,10 +87,10 @@ func TestClientServer(t *testing.T) {
 		unixTime := timestamp.Unix()
 		expectedTime := time.Unix(unixTime, 0).UTC()
 
-		mockExec.On("ExecuteTxs", txs, blockHeight, expectedTime, prevStateRoot).
+		mockExec.On("ExecuteTxs", mock.Anything, txs, blockHeight, expectedTime, prevStateRoot).
 			Return(expectedStateRoot, expectedMaxBytes, nil).Once()
 
-		updatedStateRoot, maxBytes, err := client.ExecuteTxs(txs, blockHeight, timestamp, prevStateRoot)
+		updatedStateRoot, maxBytes, err := client.ExecuteTxs(context.TODO(), txs, blockHeight, timestamp, prevStateRoot)
 
 		require.NoError(t, err)
 		assert.Equal(t, expectedStateRoot, updatedStateRoot)
@@ -98,9 +100,9 @@ func TestClientServer(t *testing.T) {
 
 	t.Run("SetFinal", func(t *testing.T) {
 		blockHeight := uint64(1)
-		mockExec.On("SetFinal", blockHeight).Return(nil).Once()
+		mockExec.On("SetFinal", mock.Anything, blockHeight).Return(nil).Once()
 
-		err := client.SetFinal(blockHeight)
+		err := client.SetFinal(context.TODO(), blockHeight)
 		require.NoError(t, err)
 		mockExec.AssertExpectations(t)
 	})

@@ -1,6 +1,7 @@
 package execution
 
 import (
+	"context"
 	"time"
 
 	"github.com/rollkit/go-execution/types"
@@ -9,33 +10,14 @@ import (
 // Executor defines a common interface for interacting with the execution client.
 type Executor interface {
 	// InitChain initializes the blockchain with genesis information.
-	InitChain(
-		genesisTime time.Time,
-		initialHeight uint64,
-		chainID string,
-	) (
-		stateRoot types.Hash,
-		maxBytes uint64,
-		err error,
-	)
+	InitChain(ctx context.Context, genesisTime time.Time, initialHeight uint64, chainID string) (stateRoot types.Hash, maxBytes uint64, err error)
 
 	// GetTxs retrieves all available transactions from the execution client's mempool.
-	GetTxs() ([]types.Tx, error)
+	GetTxs(ctx context.Context) ([]types.Tx, error)
 
 	// ExecuteTxs executes a set of transactions to produce a new block header.
-	ExecuteTxs(
-		txs []types.Tx,
-		blockHeight uint64,
-		timestamp time.Time,
-		prevStateRoot types.Hash,
-	) (
-		updatedStateRoot types.Hash,
-		maxBytes uint64,
-		err error,
-	)
+	ExecuteTxs(ctx context.Context, txs []types.Tx, blockHeight uint64, timestamp time.Time, prevStateRoot types.Hash) (updatedStateRoot types.Hash, maxBytes uint64, err error)
 
 	// SetFinal marks a block at the given height as final.
-	SetFinal(
-		blockHeight uint64,
-	) error
+	SetFinal(ctx context.Context, blockHeight uint64) error
 }
