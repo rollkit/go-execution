@@ -38,7 +38,7 @@ func (s *ProxyTestSuite) SetupTest() {
 	s.client = client
 	s.Exec = client
 	s.cleanup = func() {
-		client.Stop()
+		_ = client.Stop()
 		s.server.Close()
 	}
 }

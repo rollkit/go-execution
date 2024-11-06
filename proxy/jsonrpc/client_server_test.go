@@ -29,7 +29,7 @@ func TestClientServer(t *testing.T) {
 
 	err := client.Start(testServer.URL)
 	require.NoError(t, err)
-	defer client.Stop()
+	defer func() { _ = client.Stop() }()
 
 	t.Run("InitChain", func(t *testing.T) {
 		genesisTime := time.Now().UTC().Truncate(time.Second)

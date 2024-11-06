@@ -61,7 +61,7 @@ func (s *ProxyTestSuite) SetupTest() {
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
 
-	err := client.Start("bufnet", opts...)
+	err := client.Start("passthrough://bufnet", opts...)
 	require.NoError(s.T(), err)
 
 	for i := 0; i < 10; i++ {
@@ -74,7 +74,7 @@ func (s *ProxyTestSuite) SetupTest() {
 	s.client = client
 	s.Exec = client
 	s.cleanup = func() {
-		client.Stop()
+		_ = client.Stop()
 		s.server.Stop()
 	}
 }

@@ -38,12 +38,12 @@ func TestClientServer(t *testing.T) {
 	client := grpcproxy.NewClient()
 	client.SetConfig(config)
 
-	err := client.Start("bufnet",
+	err := client.Start("passthrough://bufnet",
 		grpc.WithContextDialer(dialer(listener)),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	require.NoError(t, err)
-	defer client.Stop()
+	defer func() { _ = client.Stop() }()
 
 	mockExec.On("GetTxs").Return([]types.Tx{}, nil).Maybe()
 

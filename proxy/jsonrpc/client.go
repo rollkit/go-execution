@@ -12,12 +12,14 @@ import (
 	"github.com/rollkit/go-execution/types"
 )
 
+// Client defines JSON-RPC proxy client of execution API.
 type Client struct {
 	endpoint string
 	client   *http.Client
 	config   *Config
 }
 
+// NewClient creates new proxy client with default config.
 func NewClient() *Client {
 	return &Client{
 		config: DefaultConfig(),
@@ -25,6 +27,7 @@ func NewClient() *Client {
 	}
 }
 
+// SetConfig updates the client's configuration with the provided config.
 func (c *Client) SetConfig(config *Config) {
 	if config != nil {
 		c.config = config
@@ -32,15 +35,18 @@ func (c *Client) SetConfig(config *Config) {
 	}
 }
 
+// Start is used to start the client.
 func (c *Client) Start(endpoint string) error {
 	c.endpoint = endpoint
 	return nil
 }
 
+// Stop method is used to stop the client.
 func (c *Client) Stop() error {
 	return nil
 }
 
+// InitChain initializes the blockchain with genesis information.
 func (c *Client) InitChain(genesisTime time.Time, initialHeight uint64, chainID string) (types.Hash, uint64, error) {
 	params := map[string]interface{}{
 		"genesis_time":   genesisTime.Unix(),
@@ -68,6 +74,7 @@ func (c *Client) InitChain(genesisTime time.Time, initialHeight uint64, chainID 
 	return stateRoot, result.MaxBytes, nil
 }
 
+// GetTxs retrieves all available transactions from the execution client's mempool.
 func (c *Client) GetTxs() ([]types.Tx, error) {
 	var result struct {
 		Txs []string `json:"txs"`
@@ -89,6 +96,7 @@ func (c *Client) GetTxs() ([]types.Tx, error) {
 	return txs, nil
 }
 
+// ExecuteTxs executes a set of transactions to produce a new block header.
 func (c *Client) ExecuteTxs(txs []types.Tx, blockHeight uint64, timestamp time.Time, prevStateRoot types.Hash) (types.Hash, uint64, error) {
 	// Encode txs to base64
 	encodedTxs := make([]string, len(txs))
@@ -123,6 +131,7 @@ func (c *Client) ExecuteTxs(txs []types.Tx, blockHeight uint64, timestamp time.T
 	return updatedStateRoot, result.MaxBytes, nil
 }
 
+// SetFinal marks a block at the given height as final.
 func (c *Client) SetFinal(blockHeight uint64) error {
 	params := map[string]interface{}{
 		"block_height": blockHeight,
@@ -160,7 +169,7 @@ func (c *Client) call(method string, params interface{}, result interface{}) err
 	if err != nil {
 		return fmt.Errorf("failed to send request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
