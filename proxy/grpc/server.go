@@ -12,12 +12,12 @@ import (
 // Server defines a gRPC proxy server
 type Server struct {
 	pb.UnimplementedExecutionServiceServer
-	exec   execution.Execute
+	exec   execution.Executor
 	config *Config
 }
 
 // NewServer creates a new ExecutionService gRPC server with the given execution client and configuration.
-func NewServer(exec execution.Execute, config *Config) pb.ExecutionServiceServer {
+func NewServer(exec execution.Executor, config *Config) pb.ExecutionServiceServer {
 	if config == nil {
 		config = DefaultConfig()
 	}
