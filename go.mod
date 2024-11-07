@@ -5,7 +5,7 @@ go 1.22
 toolchain go1.22.4
 
 require (
-	github.com/celestiaorg/go-header v0.6.2
+	github.com/celestiaorg/go-header v0.6.3
 	github.com/cosmos/gogoproto v1.7.0
 	github.com/stretchr/testify v1.9.0
 	google.golang.org/grpc v1.67.1
