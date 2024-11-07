@@ -59,7 +59,7 @@ func (c *Client) InitChain(ctx context.Context, genesisTime time.Time, initialHe
 		MaxBytes  uint64 `json:"max_bytes"`
 	}
 
-	if err := c.call(context.TODO(), "init_chain", params, &result); err != nil {
+	if err := c.call(ctx, "init_chain", params, &result); err != nil {
 		return types.Hash{}, 0, err
 	}
 
@@ -75,12 +75,12 @@ func (c *Client) InitChain(ctx context.Context, genesisTime time.Time, initialHe
 }
 
 // GetTxs retrieves all available transactions from the execution client's mempool.
-func (c *Client) GetTxs(context.Context) ([]types.Tx, error) {
+func (c *Client) GetTxs(ctx context.Context) ([]types.Tx, error) {
 	var result struct {
 		Txs []string `json:"txs"`
 	}
 
-	if err := c.call(context.TODO(), "get_txs", nil, &result); err != nil {
+	if err := c.call(ctx, "get_txs", nil, &result); err != nil {
 		return nil, err
 	}
 
@@ -116,7 +116,7 @@ func (c *Client) ExecuteTxs(ctx context.Context, txs []types.Tx, blockHeight uin
 		MaxBytes         uint64 `json:"max_bytes"`
 	}
 
-	if err := c.call(context.TODO(), "execute_txs", params, &result); err != nil {
+	if err := c.call(ctx, "execute_txs", params, &result); err != nil {
 		return types.Hash{}, 0, err
 	}
 
@@ -137,7 +137,7 @@ func (c *Client) SetFinal(ctx context.Context, blockHeight uint64) error {
 		"block_height": blockHeight,
 	}
 
-	return c.call(context.TODO(), "set_final", params, nil)
+	return c.call(ctx, "set_final", params, nil)
 }
 
 func (c *Client) call(ctx context.Context, method string, params interface{}, result interface{}) error {
