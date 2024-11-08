@@ -1,6 +1,7 @@
 package test
 
 import (
+	"context"
 	"time"
 
 	"github.com/stretchr/testify/suite"
@@ -21,7 +22,7 @@ func (s *ExecutorSuite) TestInitChain() {
 	initialHeight := uint64(1)
 	chainID := "test-chain"
 
-	stateRoot, maxBytes, err := s.Exec.InitChain(genesisTime, initialHeight, chainID)
+	stateRoot, maxBytes, err := s.Exec.InitChain(context.TODO(), genesisTime, initialHeight, chainID)
 	s.Require().NoError(err)
 	s.NotEqual(types.Hash{}, stateRoot)
 	s.Greater(maxBytes, uint64(0))
@@ -29,7 +30,7 @@ func (s *ExecutorSuite) TestInitChain() {
 
 // TestGetTxs tests GetTxs method.
 func (s *ExecutorSuite) TestGetTxs() {
-	txs, err := s.Exec.GetTxs()
+	txs, err := s.Exec.GetTxs(context.TODO())
 	s.Require().NoError(err)
 	s.NotNil(txs)
 }
@@ -41,7 +42,7 @@ func (s *ExecutorSuite) TestExecuteTxs() {
 	timestamp := time.Now().UTC()
 	prevStateRoot := types.Hash{1, 2, 3}
 
-	stateRoot, maxBytes, err := s.Exec.ExecuteTxs(txs, blockHeight, timestamp, prevStateRoot)
+	stateRoot, maxBytes, err := s.Exec.ExecuteTxs(context.TODO(), txs, blockHeight, timestamp, prevStateRoot)
 	s.Require().NoError(err)
 	s.NotEqual(types.Hash{}, stateRoot)
 	s.Greater(maxBytes, uint64(0))
@@ -49,6 +50,6 @@ func (s *ExecutorSuite) TestExecuteTxs() {
 
 // TestSetFinal tests SetFinal method.
 func (s *ExecutorSuite) TestSetFinal() {
-	err := s.Exec.SetFinal(1)
+	err := s.Exec.SetFinal(context.TODO(), 1)
 	s.Require().NoError(err)
 }

@@ -1,6 +1,7 @@
 package jsonrpc
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"net/http"
@@ -90,11 +91,7 @@ func (s *Server) handleInitChain(params json.RawMessage) (interface{}, *jsonRPCE
 		return nil, ErrInvalidParams
 	}
 
-	stateRoot, maxBytes, err := s.exec.InitChain(
-		time.Unix(p.GenesisTime, 0).UTC(),
-		p.InitialHeight,
-		p.ChainID,
-	)
+	stateRoot, maxBytes, err := s.exec.InitChain(context.TODO(), time.Unix(p.GenesisTime, 0).UTC(), p.InitialHeight, p.ChainID)
 	if err != nil {
 		return nil, &jsonRPCError{Code: ErrCodeInternal, Message: err.Error()}
 	}
@@ -106,7 +103,7 @@ func (s *Server) handleInitChain(params json.RawMessage) (interface{}, *jsonRPCE
 }
 
 func (s *Server) handleGetTxs() (interface{}, *jsonRPCError) {
-	txs, err := s.exec.GetTxs()
+	txs, err := s.exec.GetTxs(context.TODO())
 	if err != nil {
 		return nil, &jsonRPCError{Code: ErrCodeInternal, Message: err.Error()}
 	}
@@ -152,12 +149,7 @@ func (s *Server) handleExecuteTxs(params json.RawMessage) (interface{}, *jsonRPC
 	var prevStateRoot types.Hash
 	copy(prevStateRoot[:], prevStateRootBytes)
 
-	updatedStateRoot, maxBytes, err := s.exec.ExecuteTxs(
-		txs,
-		p.BlockHeight,
-		time.Unix(p.Timestamp, 0).UTC(),
-		prevStateRoot,
-	)
+	updatedStateRoot, maxBytes, err := s.exec.ExecuteTxs(context.TODO(), txs, p.BlockHeight, time.Unix(p.Timestamp, 0).UTC(), prevStateRoot)
 	if err != nil {
 		return nil, &jsonRPCError{Code: ErrCodeInternal, Message: err.Error()}
 	}
@@ -177,7 +169,7 @@ func (s *Server) handleSetFinal(params json.RawMessage) (interface{}, *jsonRPCEr
 		return nil, ErrInvalidParams
 	}
 
-	if err := s.exec.SetFinal(p.BlockHeight); err != nil {
+	if err := s.exec.SetFinal(context.TODO(), p.BlockHeight); err != nil {
 		return nil, &jsonRPCError{Code: ErrCodeInternal, Message: err.Error()}
 	}
 
