@@ -30,7 +30,8 @@ func NewDummyExecutor() *DummyExecutor {
 // It returns the state root hash, the maximum byte size, and an error if the initialization fails.
 func (e *DummyExecutor) InitChain(ctx context.Context, genesisTime time.Time, initialHeight uint64, chainID string) (types.Hash, uint64, error) {
 	hash := sha512.New()
-	e.stateRoot = hash.Sum(e.stateRoot)
+	hash.Write(e.stateRoot)
+	e.stateRoot = hash.Sum(nil)
 	return e.stateRoot, e.maxBytes, nil
 }
 
@@ -41,6 +42,7 @@ func (e *DummyExecutor) GetTxs(context.Context) ([]types.Tx, error) {
 	return txs, nil
 }
 
+// InjectTx adds a transaction to the internal list of injected transactions in the DummyExecutor instance.
 func (e *DummyExecutor) InjectTx(tx types.Tx) {
 	e.injectedTxs = append(e.injectedTxs, tx)
 }
