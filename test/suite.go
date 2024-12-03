@@ -32,7 +32,7 @@ func (s *ExecutorSuite) TestInitChain() {
 func (s *ExecutorSuite) TestGetTxs() {
 	txs, err := s.Exec.GetTxs(context.TODO())
 	s.Require().NoError(err)
-	s.NotNil(txs)
+	s.Empty(txs)
 }
 
 // TestExecuteTxs tests ExecuteTxs method.
@@ -50,6 +50,12 @@ func (s *ExecutorSuite) TestExecuteTxs() {
 
 // TestSetFinal tests SetFinal method.
 func (s *ExecutorSuite) TestSetFinal() {
+	// finalizing invalid height must return error
 	err := s.Exec.SetFinal(context.TODO(), 1)
+	s.Require().Error(err)
+
+	_, _, err = s.Exec.ExecuteTxs(context.TODO(), nil, 2, time.Now(), types.Hash("test state"))
+	s.Require().NoError(err)
+	err = s.Exec.SetFinal(context.TODO(), 2)
 	s.Require().NoError(err)
 }
