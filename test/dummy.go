@@ -63,6 +63,7 @@ func (e *DummyExecutor) ExecuteTxs(ctx context.Context, txs []types.Tx, blockHei
 func (e *DummyExecutor) SetFinal(ctx context.Context, blockHeight uint64) error {
 	if pending, ok := e.pendingRoots[blockHeight]; ok {
 		e.stateRoot = pending
+		delete(e.pendingRoots, blockHeight)
 		return nil
 	}
 	return fmt.Errorf("cannot set finalized block at height %d", blockHeight)
