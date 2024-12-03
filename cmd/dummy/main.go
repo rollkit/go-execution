@@ -2,13 +2,12 @@ package main
 
 import (
 	"errors"
+	"google.golang.org/grpc"
 	"log"
 	"net"
 	"os"
-	"sync"
-	"time"
-
-	"google.golang.org/grpc"
+	"os/signal"
+	"syscall"
 
 	grpcproxy "github.com/rollkit/go-execution/proxy/grpc"
 	"github.com/rollkit/go-execution/test"
@@ -19,10 +18,6 @@ const bufSize = 1024 * 1024
 
 func main() {
 	dummy := test.NewDummyExecutor()
-	config := &grpcproxy.Config{
-		DefaultTimeout: 5 * time.Second,
-		MaxRequestSize: bufSize,
-	}
 
 	listenAddress := "127.0.0.1:40041"
 	if len(os.Args) == 2 {
@@ -38,22 +33,31 @@ func main() {
 	}()
 
 	log.Println("Starting server...")
-	server := grpcproxy.NewServer(dummy, config)
+	server := grpcproxy.NewServer(dummy, grpcproxy.DefaultConfig())
 	s := grpc.NewServer()
 	pb.RegisterExecutionServiceServer(s, server)
 
-	wg := sync.WaitGroup{}
-	wg.Add(1)
+	// Setup signal handling
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
+	doneChan := make(chan interface{}, 1)
 	go func() {
 		log.Println("Serving...")
+		log.Println("Type Ctrl+C to shutdown")
 		if err := s.Serve(listener); err != nil && !errors.Is(err, grpc.ErrServerStopped) {
 			log.Fatalf("Server exited with error: %v\n", err)
 		}
-		wg.Done()
+		doneChan <- nil
 	}()
-	defer s.Stop()
 
-	wg.Wait()
+	// Handle shutdown signal
+	go func() {
+		<-sigChan
+		log.Println("Received shutdown signal")
+		s.GracefulStop()
+	}()
+
+	<-doneChan
 	log.Println("Server stopped")
 }
