@@ -8,7 +8,7 @@ require (
 	github.com/celestiaorg/go-header v0.6.3
 	github.com/cosmos/gogoproto v1.7.0
 	github.com/stretchr/testify v1.9.0
-	google.golang.org/grpc v1.68.0
+	google.golang.org/grpc v1.68.1
 )
 
 require (
