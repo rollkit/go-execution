@@ -60,6 +60,7 @@ func (s *ExecutorSuite) TestSetFinal() {
 	s.Require().NoError(err)
 }
 
+// TestMultipleBlocks is a basic test ensuring that all API methods used together can be used to produce multiple blocks.
 func (s *ExecutorSuite) TestMultipleBlocks() {
 	genesisTime := time.Now().UTC()
 	initialHeight := uint64(1)
@@ -78,6 +79,7 @@ func (s *ExecutorSuite) TestMultipleBlocks() {
 
 		stateRoot, maxBytes, err = s.Exec.ExecuteTxs(ctx, txs, i, time.Now(), stateRoot)
 		s.Require().NoError(err)
+		s.Require().NotZero(maxBytes)
 
 		err = s.Exec.SetFinal(ctx, i)
 		s.Require().NoError(err)
