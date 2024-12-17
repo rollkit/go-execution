@@ -77,7 +77,8 @@ func (s *ExecutorSuite) TestMultipleBlocks() {
 		txs, err := s.Exec.GetTxs(ctx)
 		s.Require().NoError(err)
 
-		stateRoot, maxBytes, err = s.Exec.ExecuteTxs(ctx, txs, i, time.Now(), stateRoot)
+		blockTime := genesisTime.Add(time.Duration(i+1) * time.Second) //nolint:gosec
+		stateRoot, maxBytes, err = s.Exec.ExecuteTxs(ctx, txs, i, blockTime, stateRoot)
 		s.Require().NoError(err)
 		s.Require().NotZero(maxBytes)
 
