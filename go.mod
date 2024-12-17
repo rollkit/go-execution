@@ -7,7 +7,7 @@ toolchain go1.23.2
 require (
 	github.com/celestiaorg/go-header v0.6.3
 	github.com/cosmos/gogoproto v1.7.0
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	google.golang.org/grpc v1.68.0
 )
 
