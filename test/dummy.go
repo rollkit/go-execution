@@ -1,9 +1,12 @@
 package test
 
 import (
+	"bytes"
+
 	"context"
 	"crypto/sha512"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/rollkit/go-execution/types"
@@ -38,7 +41,6 @@ func (e *DummyExecutor) InitChain(ctx context.Context, genesisTime time.Time, in
 // GetTxs returns the list of transactions (types.Tx) within the DummyExecutor instance and an error if any.
 func (e *DummyExecutor) GetTxs(context.Context) ([]types.Tx, error) {
 	txs := e.injectedTxs
-	e.injectedTxs = nil
 	return txs, nil
 }
 
@@ -56,6 +58,7 @@ func (e *DummyExecutor) ExecuteTxs(ctx context.Context, txs []types.Tx, blockHei
 	}
 	pending := hash.Sum(nil)
 	e.pendingRoots[blockHeight] = pending
+	e.removeExecutedTxs(txs)
 	return pending, e.maxBytes, nil
 }
 
@@ -67,4 +70,10 @@ func (e *DummyExecutor) SetFinal(ctx context.Context, blockHeight uint64) error 
 		return nil
 	}
 	return fmt.Errorf("cannot set finalized block at height %d", blockHeight)
+}
+
+func (e *DummyExecutor) removeExecutedTxs(txs []types.Tx) {
+	e.injectedTxs = slices.DeleteFunc(e.injectedTxs, func(tx types.Tx) bool {
+		return slices.ContainsFunc(txs, func(t types.Tx) bool { return bytes.Equal(tx, t) })
+	})
 }
