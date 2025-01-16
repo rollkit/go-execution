@@ -73,6 +73,7 @@ func (s *ProxyTestSuite) SetupTest() {
 
 	s.client = client
 	s.Exec = client
+	s.TxInjector = exec
 	s.cleanup = func() {
 		_ = client.Stop()
 		s.server.Stop()
