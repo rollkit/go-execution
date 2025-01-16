@@ -13,7 +13,13 @@ import (
 // ExecutorSuite is a reusable test suite for Execution API implementations.
 type ExecutorSuite struct {
 	suite.Suite
-	Exec execution.Executor
+	Exec       execution.Executor
+	TxInjector TxInjector
+}
+
+// TxInjector provides an interface for injecting transactions into a test suite.
+type TxInjector interface {
+	InjectTx(tx types.Tx)
 }
 
 // TestInitChain tests InitChain method.
@@ -30,9 +36,24 @@ func (s *ExecutorSuite) TestInitChain() {
 
 // TestGetTxs tests GetTxs method.
 func (s *ExecutorSuite) TestGetTxs() {
+	s.skipIfInjectorNotSet()
+
+	tx1 := types.Tx("tx1")
+	tx2 := types.Tx("tx2")
+
+	s.TxInjector.InjectTx(tx1)
+	s.TxInjector.InjectTx(tx2)
 	txs, err := s.Exec.GetTxs(context.TODO())
 	s.Require().NoError(err)
-	s.Empty(txs)
+	s.Require().Len(txs, 2)
+	s.Require().Contains(txs, tx1)
+	s.Require().Contains(txs, tx2)
+}
+
+func (s *ExecutorSuite) skipIfInjectorNotSet() {
+	if s.TxInjector == nil {
+		s.T().Skipf("Skipping %s because TxInjector is not provided", s.T().Name())
+	}
 }
 
 // TestExecuteTxs tests ExecuteTxs method.

@@ -16,7 +16,9 @@ type DummyTestSuite struct {
 }
 
 func (s *DummyTestSuite) SetupTest() {
-	s.Exec = NewDummyExecutor()
+	dummy := NewDummyExecutor()
+	s.Exec = dummy
+	s.TxInjector = dummy
 }
 
 func TestDummySuite(t *testing.T) {
