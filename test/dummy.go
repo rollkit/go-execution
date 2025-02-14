@@ -94,3 +94,11 @@ func (e *DummyExecutor) removeExecutedTxs(txs []types.Tx) {
 		return slices.ContainsFunc(txs, func(t types.Tx) bool { return bytes.Equal(tx, t) })
 	})
 }
+
+// GetStateRoot returns the current state root in a thread-safe manner
+func (e *DummyExecutor) GetStateRoot() types.Hash {
+	e.mu.RLock()
+	defer e.mu.RUnlock()
+
+	return e.stateRoot
+}
