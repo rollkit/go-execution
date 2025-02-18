@@ -19,7 +19,7 @@ type ExecutorSuite struct {
 
 // TxInjector provides an interface for injecting transactions into a test suite.
 type TxInjector interface {
-	InjectTx(tx types.Tx)
+	InjectRandomTx() types.Tx
 }
 
 // TestInitChain tests InitChain method.
@@ -38,11 +38,8 @@ func (s *ExecutorSuite) TestInitChain() {
 func (s *ExecutorSuite) TestGetTxs() {
 	s.skipIfInjectorNotSet()
 
-	tx1 := types.Tx("tx1")
-	tx2 := types.Tx("tx2")
-
-	s.TxInjector.InjectTx(tx1)
-	s.TxInjector.InjectTx(tx2)
+	tx1 := s.TxInjector.InjectRandomTx()
+	tx2 := s.TxInjector.InjectRandomTx()
 	txs, err := s.Exec.GetTxs(context.TODO())
 	s.Require().NoError(err)
 	s.Require().Len(txs, 2)
@@ -58,14 +55,15 @@ func (s *ExecutorSuite) skipIfInjectorNotSet() {
 
 // TestExecuteTxs tests ExecuteTxs method.
 func (s *ExecutorSuite) TestExecuteTxs() {
-	txs := []types.Tx{[]byte("tx1"), []byte("tx2")}
-	blockHeight := uint64(1)
-	timestamp := time.Now().UTC()
-	prevStateRoot := types.Hash{1, 2, 3}
+	s.skipIfInjectorNotSet()
+	txs := []types.Tx{s.TxInjector.InjectRandomTx(), s.TxInjector.InjectRandomTx()}
 
-	stateRoot, maxBytes, err := s.Exec.ExecuteTxs(context.TODO(), txs, blockHeight, timestamp, prevStateRoot)
+	genesisTime, initialHeight, genesisStateRoot, _ := s.initChain(context.TODO())
+
+	stateRoot, maxBytes, err := s.Exec.ExecuteTxs(context.TODO(), txs, initialHeight+1, genesisTime.Add(time.Second), genesisStateRoot)
 	s.Require().NoError(err)
 	s.NotEqual(types.Hash{}, stateRoot)
+	s.NotEqual(genesisStateRoot, stateRoot)
 	s.Greater(maxBytes, uint64(0))
 }
 
@@ -75,6 +73,7 @@ func (s *ExecutorSuite) TestSetFinal() {
 	err := s.Exec.SetFinal(context.TODO(), 1)
 	s.Require().Error(err)
 
+	_, _, _, _ = s.initChain(context.TODO())
 	_, _, err = s.Exec.ExecuteTxs(context.TODO(), nil, 2, time.Now(), types.Hash("test state"))
 	s.Require().NoError(err)
 	err = s.Exec.SetFinal(context.TODO(), 2)
@@ -83,16 +82,9 @@ func (s *ExecutorSuite) TestSetFinal() {
 
 // TestMultipleBlocks is a basic test ensuring that all API methods used together can be used to produce multiple blocks.
 func (s *ExecutorSuite) TestMultipleBlocks() {
-	genesisTime := time.Now().UTC()
-	initialHeight := uint64(1)
-	chainID := "test-chain"
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-
-	stateRoot, maxBytes, err := s.Exec.InitChain(ctx, genesisTime, initialHeight, chainID)
-	s.Require().NoError(err)
-	s.NotEqual(types.Hash{}, stateRoot)
-	s.Greater(maxBytes, uint64(0))
+	genesisTime, initialHeight, stateRoot, maxBytes := s.initChain(ctx)
 
 	for i := initialHeight; i <= 10; i++ {
 		txs, err := s.Exec.GetTxs(ctx)
@@ -106,4 +98,14 @@ func (s *ExecutorSuite) TestMultipleBlocks() {
 		err = s.Exec.SetFinal(ctx, i)
 		s.Require().NoError(err)
 	}
+}
+
+func (s *ExecutorSuite) initChain(ctx context.Context) (time.Time, uint64, types.Hash, uint64) {
+	genesisTime := time.Now().UTC()
+	initialHeight := uint64(1)
+	chainID := "test-chain"
+
+	stateRoot, maxBytes, err := s.Exec.InitChain(ctx, genesisTime, initialHeight, chainID)
+	s.Require().NoError(err)
+	return genesisTime, initialHeight, stateRoot, maxBytes
 }
