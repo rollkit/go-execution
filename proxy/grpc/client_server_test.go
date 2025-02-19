@@ -56,10 +56,8 @@ func TestClientServer(t *testing.T) {
 		chainID := "test-chain"
 
 		// initialize a new Hash with a fixed size
-		expectedStateRoot := make([]byte, 32)
+		expectedStateRoot := types.Hash(make([]byte, 32))
 		copy(expectedStateRoot, []byte{1, 2, 3})
-		var stateRootHash types.Hash
-		copy(stateRootHash[:], expectedStateRoot)
 
 		expectedMaxBytes := uint64(1000000)
 
@@ -68,12 +66,12 @@ func TestClientServer(t *testing.T) {
 		expectedTime := time.Unix(unixTime, 0).UTC()
 
 		mockExec.On("InitChain", mock.Anything, expectedTime, initialHeight, chainID).
-			Return(stateRootHash, expectedMaxBytes, nil).Once()
+			Return(expectedStateRoot, expectedMaxBytes, nil).Once()
 
 		stateRoot, maxBytes, err := client.InitChain(context.TODO(), genesisTime, initialHeight, chainID)
 
 		require.NoError(t, err)
-		assert.Equal(t, stateRootHash, stateRoot)
+		assert.Equal(t, expectedStateRoot, stateRoot)
 		assert.Equal(t, expectedMaxBytes, maxBytes)
 		mockExec.AssertExpectations(t)
 	})

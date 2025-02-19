@@ -61,8 +61,7 @@ func (c *Client) InitChain(ctx context.Context, genesisTime time.Time, initialHe
 		return types.Hash{}, 0, err
 	}
 
-	var stateRoot types.Hash
-	copy(stateRoot[:], resp.StateRoot)
+	stateRoot := copyHash(resp.StateRoot)
 
 	return stateRoot, resp.MaxBytes, nil
 }
@@ -99,8 +98,7 @@ func (c *Client) ExecuteTxs(ctx context.Context, txs []types.Tx, blockHeight uin
 		return types.Hash{}, 0, err
 	}
 
-	var updatedStateRoot types.Hash
-	copy(updatedStateRoot[:], resp.UpdatedStateRoot)
+	updatedStateRoot := copyHash(resp.UpdatedStateRoot)
 
 	return updatedStateRoot, resp.MaxBytes, nil
 }

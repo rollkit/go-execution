@@ -62,9 +62,9 @@ func (s *ExecutorSuite) TestExecuteTxs() {
 
 	stateRoot, maxBytes, err := s.Exec.ExecuteTxs(context.TODO(), txs, initialHeight+1, genesisTime.Add(time.Second), genesisStateRoot)
 	s.Require().NoError(err)
-	s.NotEqual(types.Hash{}, stateRoot)
-	s.NotEqual(genesisStateRoot, stateRoot)
-	s.Greater(maxBytes, uint64(0))
+	s.Require().NotEmpty(stateRoot)
+	s.Require().NotEqualValues(genesisStateRoot, stateRoot)
+	s.Require().Greater(maxBytes, uint64(0))
 }
 
 // TestSetFinal tests SetFinal method.
@@ -73,8 +73,8 @@ func (s *ExecutorSuite) TestSetFinal() {
 	err := s.Exec.SetFinal(context.TODO(), 1)
 	s.Require().Error(err)
 
-	_, _, _, _ = s.initChain(context.TODO())
-	_, _, err = s.Exec.ExecuteTxs(context.TODO(), nil, 2, time.Now(), types.Hash("test state"))
+	_, height, stateRoot, _ := s.initChain(context.TODO())
+	_, _, err = s.Exec.ExecuteTxs(context.TODO(), nil, height+1, time.Now(), stateRoot)
 	s.Require().NoError(err)
 	err = s.Exec.SetFinal(context.TODO(), 2)
 	s.Require().NoError(err)
@@ -107,5 +107,6 @@ func (s *ExecutorSuite) initChain(ctx context.Context) (time.Time, uint64, types
 
 	stateRoot, maxBytes, err := s.Exec.InitChain(ctx, genesisTime, initialHeight, chainID)
 	s.Require().NoError(err)
+	s.Require().NotEmpty(stateRoot)
 	return genesisTime, initialHeight, stateRoot, maxBytes
 }
