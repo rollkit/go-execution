@@ -56,10 +56,11 @@ func TestClientServer(t *testing.T) {
 		chainID := "test-chain"
 
 		// initialize a new Hash with a fixed size
-		expectedStateRoot := make([]byte, 32)
+		expectedStateRoot := types.Hash(make([]byte, 32))
 		copy(expectedStateRoot, []byte{1, 2, 3})
-		var stateRootHash types.Hash
+		stateRootHash := types.Hash(make([]byte, 32))
 		copy(stateRootHash[:], expectedStateRoot)
+		assert.Equal(t, expectedStateRoot, stateRootHash[:])
 
 		expectedMaxBytes := uint64(1000000)
 
