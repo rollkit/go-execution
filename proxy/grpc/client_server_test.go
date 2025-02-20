@@ -71,7 +71,9 @@ func TestClientServer(t *testing.T) {
 		mockExec.On("InitChain", mock.Anything, expectedTime, initialHeight, chainID).
 			Return(stateRootHash, expectedMaxBytes, nil).Once()
 
-		stateRoot, maxBytes, err := client.InitChain(context.TODO(), genesisTime, initialHeight, chainID)
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		defer cancel()
+		stateRoot, maxBytes, err := client.InitChain(ctx, genesisTime, initialHeight, chainID)
 
 		require.NoError(t, err)
 		assert.Equal(t, stateRootHash, stateRoot)
