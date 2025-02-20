@@ -27,11 +27,9 @@ func TestDummySuite(t *testing.T) {
 
 func TestTxRemoval(t *testing.T) {
 	exec := NewDummyExecutor()
-	tx1 := types.Tx([]byte{1, 2, 3})
-	tx2 := types.Tx([]byte{3, 2, 1})
 
-	exec.InjectTx(tx1)
-	exec.InjectTx(tx2)
+	tx1 := exec.InjectRandomTx()
+	tx2 := exec.InjectRandomTx()
 
 	// first execution of GetTxs - nothing special
 	txs, err := exec.GetTxs(context.Background())
