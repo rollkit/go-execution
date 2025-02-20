@@ -17,8 +17,6 @@ type ExecutorSuite struct {
 	TxInjector TxInjector
 }
 
-const maxTestDuration = 3 * time.Second
-
 // TxInjector provides an interface for injecting transactions into a test suite.
 type TxInjector interface {
 	InjectRandomTx() types.Tx
@@ -30,7 +28,7 @@ func (s *ExecutorSuite) TestInitChain() {
 	initialHeight := uint64(1)
 	chainID := "test-chain"
 
-	ctx, cancel := context.WithTimeout(context.Background(), maxTestDuration)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	stateRoot, maxBytes, err := s.Exec.InitChain(ctx, genesisTime, initialHeight, chainID)
@@ -43,12 +41,18 @@ func (s *ExecutorSuite) TestInitChain() {
 func (s *ExecutorSuite) TestGetTxs() {
 	s.skipIfInjectorNotSet()
 
-	ctx, cancel := context.WithTimeout(context.Background(), maxTestDuration)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
+	// try to get transactions without injecting any
+	txs, err := s.Exec.GetTxs(ctx)
+	s.Require().NoError(err)
+	s.Require().Empty(txs)
+
+	// inject two txs and retrieve them
 	tx1 := s.TxInjector.InjectRandomTx()
 	tx2 := s.TxInjector.InjectRandomTx()
-	txs, err := s.Exec.GetTxs(ctx)
+	txs, err = s.Exec.GetTxs(ctx)
 	s.Require().NoError(err)
 	s.Require().Len(txs, 2)
 	s.Require().Contains(txs, tx1)
@@ -65,24 +69,45 @@ func (s *ExecutorSuite) skipIfInjectorNotSet() {
 func (s *ExecutorSuite) TestExecuteTxs() {
 	s.skipIfInjectorNotSet()
 
-	txs := []types.Tx{s.TxInjector.InjectRandomTx(), s.TxInjector.InjectRandomTx()}
-	initialHeight := uint64(1)
+	cases := []struct {
+		name string
+		txs  []types.Tx
+	}{
+		{
+			name: "nil txs",
+			txs:  nil,
+		},
+		{
+			name: "empty txs",
+			txs:  []types.Tx{},
+		},
+		{
+			name: "two txs",
+			txs:  []types.Tx{s.TxInjector.InjectRandomTx(), s.TxInjector.InjectRandomTx()},
+		},
+	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), maxTestDuration)
-	defer cancel()
+	for _, c := range cases {
+		s.Run(c.name, func() {
+			initialHeight := uint64(1)
 
-	genesisTime, genesisStateRoot, _ := s.initChain(ctx, initialHeight)
+			ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+			defer cancel()
 
-	stateRoot, maxBytes, err := s.Exec.ExecuteTxs(ctx, txs, initialHeight, genesisTime.Add(time.Second), genesisStateRoot)
-	s.Require().NoError(err)
-	s.Require().NotEmpty(stateRoot)
-	s.Require().NotEqualValues(genesisStateRoot, stateRoot)
-	s.Require().Greater(maxBytes, uint64(0))
+			genesisTime, genesisStateRoot, _ := s.initChain(ctx, initialHeight)
+
+			stateRoot, maxBytes, err := s.Exec.ExecuteTxs(ctx, c.txs, initialHeight, genesisTime.Add(time.Second), genesisStateRoot)
+			s.Require().NoError(err)
+			s.Require().NotEmpty(stateRoot)
+			s.Require().NotEqual(genesisStateRoot, stateRoot)
+			s.Require().Greater(maxBytes, uint64(0))
+		})
+	}
 }
 
 // TestSetFinal tests SetFinal method.
 func (s *ExecutorSuite) TestSetFinal() {
-	ctx, cancel := context.WithTimeout(context.Background(), maxTestDuration)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	// finalizing invalid height must return error
@@ -99,7 +124,7 @@ func (s *ExecutorSuite) TestSetFinal() {
 
 // TestMultipleBlocks is a basic test ensuring that all API methods used together can be used to produce multiple blocks.
 func (s *ExecutorSuite) TestMultipleBlocks() {
-	ctx, cancel := context.WithTimeout(context.Background(), maxTestDuration)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	initialHeight := uint64(1)
 	genesisTime, stateRoot, maxBytes := s.initChain(ctx, initialHeight)
