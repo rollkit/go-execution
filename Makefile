@@ -89,7 +89,8 @@ proto-lint: check-proto-deps
 .PHONY: proto-lint
 
 ## mock-gen: Re-generates DA mock
-mock-gen: mocks/mock_Executor.go
+mock-gen:
+	@mockery
 .PHONY: mock-gen
 
 mocks/mock_Executor.go: execution.go .mockery.yaml
