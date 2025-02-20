@@ -83,7 +83,8 @@ func (s *Server) ExecuteTxs(ctx context.Context, req *pb.ExecuteTxsRequest) (*pb
 		txs[i] = tx
 	}
 
-	prevStateRoot := copyHash(req.PrevStateRoot)
+	prevStateRoot := make([]byte, len(req.PrevStateRoot))
+	copy(prevStateRoot[:], req.PrevStateRoot)
 
 	updatedStateRoot, maxBytes, err := s.exec.ExecuteTxs(
 		ctx,
