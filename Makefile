@@ -92,6 +92,3 @@ proto-lint: check-proto-deps
 mock-gen:
 	@mockery
 .PHONY: mock-gen
-
-mocks/mock_Executor.go: execution.go .mockery.yaml
-	@mockery
