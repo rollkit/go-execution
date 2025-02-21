@@ -1,6 +1,7 @@
 package test
 
 import (
+	"bytes"
 	"context"
 	"time"
 
@@ -70,20 +71,24 @@ func (s *ExecutorSuite) TestExecuteTxs() {
 	s.skipIfInjectorNotSet()
 
 	cases := []struct {
-		name string
-		txs  []types.Tx
+		name             string
+		txs              []types.Tx
+		stateRootChanged bool
 	}{
 		{
-			name: "nil txs",
-			txs:  nil,
+			name:             "nil txs",
+			txs:              nil,
+			stateRootChanged: false,
 		},
 		{
-			name: "empty txs",
-			txs:  []types.Tx{},
+			name:             "empty txs",
+			txs:              []types.Tx{},
+			stateRootChanged: false,
 		},
 		{
-			name: "two txs",
-			txs:  []types.Tx{s.TxInjector.InjectRandomTx(), s.TxInjector.InjectRandomTx()},
+			name:             "two txs",
+			txs:              []types.Tx{s.TxInjector.InjectRandomTx(), s.TxInjector.InjectRandomTx()},
+			stateRootChanged: true,
 		},
 	}
 
@@ -99,7 +104,7 @@ func (s *ExecutorSuite) TestExecuteTxs() {
 			stateRoot, maxBytes, err := s.Exec.ExecuteTxs(ctx, c.txs, initialHeight, genesisTime.Add(time.Second), genesisStateRoot)
 			s.Require().NoError(err)
 			s.Require().NotEmpty(stateRoot)
-			s.Require().NotEqual(genesisStateRoot, stateRoot)
+			s.Require().NotEqual(c.stateRootChanged, bytes.Equal(genesisStateRoot, stateRoot))
 			s.Require().Greater(maxBytes, uint64(0))
 		})
 	}
@@ -130,6 +135,7 @@ func (s *ExecutorSuite) TestMultipleBlocks() {
 	genesisTime, prevStateRoot, _ := s.initChain(ctx, initialHeight)
 
 	for i := initialHeight; i <= 10; i++ {
+		s.TxInjector.InjectRandomTx()
 		txs, err := s.Exec.GetTxs(ctx)
 		s.Require().NoError(err)
 

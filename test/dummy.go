@@ -78,6 +78,11 @@ func (e *DummyExecutor) ExecuteTxs(ctx context.Context, txs []types.Tx, blockHei
 	e.mu.Lock()
 	defer e.mu.Unlock()
 
+	if len(txs) == 0 {
+		e.pendingRoots[blockHeight] = prevStateRoot
+		return prevStateRoot, e.maxBytes, nil
+	}
+
 	hash := sha512.New()
 	hash.Write(prevStateRoot)
 	for _, tx := range txs {
