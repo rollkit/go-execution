@@ -60,6 +60,24 @@ func (e *DummyExecutor) InitChain(ctx context.Context, genesisTime time.Time, in
 	return e.stateRoot, e.maxBytes, nil
 }
 
+// GetTxs returns the list of transactions (types.Tx) within the DummyExecutor instance and an error if any.
+func (e *DummyExecutor) GetTxs(context.Context) ([]types.Tx, error) {
+	e.mu.RLock()
+	defer e.mu.RUnlock()
+
+	txs := make([]types.Tx, len(e.injectedTxs))
+	copy(txs, e.injectedTxs)
+	return txs, nil
+}
+
+// InjectTx adds a transaction to the internal list of injected transactions in the DummyExecutor instance.
+func (e *DummyExecutor) InjectTx(tx types.Tx) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+
+	e.injectedTxs = append(e.injectedTxs, tx)
+}
+
 // ExecuteTxs simulate execution of transactions.
 func (e *DummyExecutor) ExecuteTxs(ctx context.Context, txs []types.Tx, blockHeight uint64, timestamp time.Time, prevStateRoot types.Hash) (types.Hash, uint64, error) {
 	e.mu.Lock()
@@ -109,24 +127,6 @@ func (e *DummyExecutor) SetFinal(ctx context.Context, blockHeight uint64) error 
 		return nil
 	}
 	return types.ErrBlockNotFound
-}
-
-// GetTxs returns the list of transactions (types.Tx) within the DummyExecutor instance and an error if any.
-func (e *DummyExecutor) GetTxs(context.Context) ([]types.Tx, error) {
-	e.mu.RLock()
-	defer e.mu.RUnlock()
-
-	txs := make([]types.Tx, len(e.injectedTxs))
-	copy(txs, e.injectedTxs)
-	return txs, nil
-}
-
-// InjectTx adds a transaction to the internal list of injected transactions in the DummyExecutor instance.
-func (e *DummyExecutor) InjectTx(tx types.Tx) {
-	e.mu.Lock()
-	defer e.mu.Unlock()
-
-	e.injectedTxs = append(e.injectedTxs, tx)
 }
 
 func (e *DummyExecutor) removeExecutedTxs(txs []types.Tx) {
