@@ -5,8 +5,6 @@ package mocks
 import (
 	context "context"
 
-	header "github.com/celestiaorg/go-header"
-
 	mock "github.com/stretchr/testify/mock"
 
 	time "time"
@@ -28,34 +26,34 @@ func (_m *MockExecutor) EXPECT() *MockExecutor_Expecter {
 }
 
 // ExecuteTxs provides a mock function with given fields: ctx, txs, blockHeight, timestamp, prevStateRoot
-func (_m *MockExecutor) ExecuteTxs(ctx context.Context, txs []types.Tx, blockHeight uint64, timestamp time.Time, prevStateRoot header.Hash) (header.Hash, uint64, error) {
+func (_m *MockExecutor) ExecuteTxs(ctx context.Context, txs []types.Tx, blockHeight uint64, timestamp time.Time, prevStateRoot []byte) ([]byte, uint64, error) {
 	ret := _m.Called(ctx, txs, blockHeight, timestamp, prevStateRoot)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ExecuteTxs")
 	}
 
-	var r0 header.Hash
+	var r0 []byte
 	var r1 uint64
 	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, []types.Tx, uint64, time.Time, header.Hash) (header.Hash, uint64, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []types.Tx, uint64, time.Time, []byte) ([]byte, uint64, error)); ok {
 		return rf(ctx, txs, blockHeight, timestamp, prevStateRoot)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, []types.Tx, uint64, time.Time, header.Hash) header.Hash); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []types.Tx, uint64, time.Time, []byte) []byte); ok {
 		r0 = rf(ctx, txs, blockHeight, timestamp, prevStateRoot)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(header.Hash)
+			r0 = ret.Get(0).([]byte)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, []types.Tx, uint64, time.Time, header.Hash) uint64); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, []types.Tx, uint64, time.Time, []byte) uint64); ok {
 		r1 = rf(ctx, txs, blockHeight, timestamp, prevStateRoot)
 	} else {
 		r1 = ret.Get(1).(uint64)
 	}
 
-	if rf, ok := ret.Get(2).(func(context.Context, []types.Tx, uint64, time.Time, header.Hash) error); ok {
+	if rf, ok := ret.Get(2).(func(context.Context, []types.Tx, uint64, time.Time, []byte) error); ok {
 		r2 = rf(ctx, txs, blockHeight, timestamp, prevStateRoot)
 	} else {
 		r2 = ret.Error(2)
@@ -74,24 +72,24 @@ type MockExecutor_ExecuteTxs_Call struct {
 //   - txs []types.Tx
 //   - blockHeight uint64
 //   - timestamp time.Time
-//   - prevStateRoot header.Hash
+//   - prevStateRoot []byte
 func (_e *MockExecutor_Expecter) ExecuteTxs(ctx interface{}, txs interface{}, blockHeight interface{}, timestamp interface{}, prevStateRoot interface{}) *MockExecutor_ExecuteTxs_Call {
 	return &MockExecutor_ExecuteTxs_Call{Call: _e.mock.On("ExecuteTxs", ctx, txs, blockHeight, timestamp, prevStateRoot)}
 }
 
-func (_c *MockExecutor_ExecuteTxs_Call) Run(run func(ctx context.Context, txs []types.Tx, blockHeight uint64, timestamp time.Time, prevStateRoot header.Hash)) *MockExecutor_ExecuteTxs_Call {
+func (_c *MockExecutor_ExecuteTxs_Call) Run(run func(ctx context.Context, txs []types.Tx, blockHeight uint64, timestamp time.Time, prevStateRoot []byte)) *MockExecutor_ExecuteTxs_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].([]types.Tx), args[2].(uint64), args[3].(time.Time), args[4].(header.Hash))
+		run(args[0].(context.Context), args[1].([]types.Tx), args[2].(uint64), args[3].(time.Time), args[4].([]byte))
 	})
 	return _c
 }
 
-func (_c *MockExecutor_ExecuteTxs_Call) Return(updatedStateRoot header.Hash, maxBytes uint64, err error) *MockExecutor_ExecuteTxs_Call {
+func (_c *MockExecutor_ExecuteTxs_Call) Return(updatedStateRoot []byte, maxBytes uint64, err error) *MockExecutor_ExecuteTxs_Call {
 	_c.Call.Return(updatedStateRoot, maxBytes, err)
 	return _c
 }
 
-func (_c *MockExecutor_ExecuteTxs_Call) RunAndReturn(run func(context.Context, []types.Tx, uint64, time.Time, header.Hash) (header.Hash, uint64, error)) *MockExecutor_ExecuteTxs_Call {
+func (_c *MockExecutor_ExecuteTxs_Call) RunAndReturn(run func(context.Context, []types.Tx, uint64, time.Time, []byte) ([]byte, uint64, error)) *MockExecutor_ExecuteTxs_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -155,24 +153,24 @@ func (_c *MockExecutor_GetTxs_Call) RunAndReturn(run func(context.Context) ([]ty
 }
 
 // InitChain provides a mock function with given fields: ctx, genesisTime, initialHeight, chainID
-func (_m *MockExecutor) InitChain(ctx context.Context, genesisTime time.Time, initialHeight uint64, chainID string) (header.Hash, uint64, error) {
+func (_m *MockExecutor) InitChain(ctx context.Context, genesisTime time.Time, initialHeight uint64, chainID string) ([]byte, uint64, error) {
 	ret := _m.Called(ctx, genesisTime, initialHeight, chainID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for InitChain")
 	}
 
-	var r0 header.Hash
+	var r0 []byte
 	var r1 uint64
 	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, time.Time, uint64, string) (header.Hash, uint64, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, time.Time, uint64, string) ([]byte, uint64, error)); ok {
 		return rf(ctx, genesisTime, initialHeight, chainID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, time.Time, uint64, string) header.Hash); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, time.Time, uint64, string) []byte); ok {
 		r0 = rf(ctx, genesisTime, initialHeight, chainID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(header.Hash)
+			r0 = ret.Get(0).([]byte)
 		}
 	}
 
@@ -212,12 +210,12 @@ func (_c *MockExecutor_InitChain_Call) Run(run func(ctx context.Context, genesis
 	return _c
 }
 
-func (_c *MockExecutor_InitChain_Call) Return(stateRoot header.Hash, maxBytes uint64, err error) *MockExecutor_InitChain_Call {
+func (_c *MockExecutor_InitChain_Call) Return(stateRoot []byte, maxBytes uint64, err error) *MockExecutor_InitChain_Call {
 	_c.Call.Return(stateRoot, maxBytes, err)
 	return _c
 }
 
-func (_c *MockExecutor_InitChain_Call) RunAndReturn(run func(context.Context, time.Time, uint64, string) (header.Hash, uint64, error)) *MockExecutor_InitChain_Call {
+func (_c *MockExecutor_InitChain_Call) RunAndReturn(run func(context.Context, time.Time, uint64, string) ([]byte, uint64, error)) *MockExecutor_InitChain_Call {
 	_c.Call.Return(run)
 	return _c
 }
