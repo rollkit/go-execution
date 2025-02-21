@@ -2,6 +2,8 @@ package test
 
 import (
 	"bytes"
+	"crypto/rand"
+
 	"context"
 	"crypto/sha512"
 	"fmt"
@@ -52,18 +54,34 @@ func (e *DummyExecutor) GetTxs(context.Context) ([]types.Tx, error) {
 	return txs, nil
 }
 
-// InjectTx adds a transaction to the internal list of injected transactions in the DummyExecutor instance.
-func (e *DummyExecutor) InjectTx(tx types.Tx) {
+// InjectRandomTx adds a transaction to the internal list of injected transactions in the DummyExecutor instance.
+func (e *DummyExecutor) InjectRandomTx() types.Tx {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 
+	tx := types.Tx(mustGetRandomBytes(100))
 	e.injectedTxs = append(e.injectedTxs, tx)
+	return tx
+}
+
+func mustGetRandomBytes(n int) []byte {
+	b := make([]byte, n)
+	_, err := rand.Read(b)
+	if err != nil {
+		panic(fmt.Errorf("failed to generate random bytes: %w", err))
+	}
+	return b
 }
 
 // ExecuteTxs simulate execution of transactions.
 func (e *DummyExecutor) ExecuteTxs(ctx context.Context, txs []types.Tx, blockHeight uint64, timestamp time.Time, prevStateRoot types.Hash) (types.Hash, uint64, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
+
+	if len(txs) == 0 {
+		e.pendingRoots[blockHeight] = prevStateRoot
+		return prevStateRoot, e.maxBytes, nil
+	}
 
 	hash := sha512.New()
 	hash.Write(prevStateRoot)
