@@ -23,6 +23,7 @@ type DummyExecutor struct {
 	injectedTxs  []types.Tx
 }
 
+// NewDummyExecutor creates a new dummy DummyExecutor instance
 func NewDummyExecutor() *DummyExecutor {
 	return &DummyExecutor{
 		stateRoot:    types.Hash{1, 2, 3},
@@ -31,6 +32,8 @@ func NewDummyExecutor() *DummyExecutor {
 	}
 }
 
+// InitChain initializes the chain state with the given genesis time, initial height, and chain ID.
+// It returns the state root hash, the maximum byte size, and an error if the initialization fails.
 func (e *DummyExecutor) InitChain(ctx context.Context, genesisTime time.Time, initialHeight uint64, chainID string) (types.Hash, uint64, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -57,6 +60,7 @@ func (e *DummyExecutor) InitChain(ctx context.Context, genesisTime time.Time, in
 	return e.stateRoot, e.maxBytes, nil
 }
 
+// ExecuteTxs simulate execution of transactions.
 func (e *DummyExecutor) ExecuteTxs(ctx context.Context, txs []types.Tx, blockHeight uint64, timestamp time.Time, prevStateRoot types.Hash) (types.Hash, uint64, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -94,6 +98,7 @@ func (e *DummyExecutor) ExecuteTxs(ctx context.Context, txs []types.Tx, blockHei
 	return pending, e.maxBytes, nil
 }
 
+// SetFinal marks block at given height as finalized.
 func (e *DummyExecutor) SetFinal(ctx context.Context, blockHeight uint64) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -106,6 +111,7 @@ func (e *DummyExecutor) SetFinal(ctx context.Context, blockHeight uint64) error 
 	return types.ErrBlockNotFound
 }
 
+// GetTxs returns the list of transactions (types.Tx) within the DummyExecutor instance and an error if any.
 func (e *DummyExecutor) GetTxs(context.Context) ([]types.Tx, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -115,6 +121,7 @@ func (e *DummyExecutor) GetTxs(context.Context) ([]types.Tx, error) {
 	return txs, nil
 }
 
+// InjectTx adds a transaction to the internal list of injected transactions in the DummyExecutor instance.
 func (e *DummyExecutor) InjectTx(tx types.Tx) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -128,6 +135,7 @@ func (e *DummyExecutor) removeExecutedTxs(txs []types.Tx) {
 	})
 }
 
+// GetStateRoot returns the current state root in a thread-safe manner
 func (e *DummyExecutor) GetStateRoot() types.Hash {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
