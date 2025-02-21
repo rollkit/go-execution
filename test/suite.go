@@ -127,16 +127,19 @@ func (s *ExecutorSuite) TestMultipleBlocks() {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	initialHeight := uint64(1)
-	genesisTime, stateRoot, maxBytes := s.initChain(ctx, initialHeight)
+	genesisTime, prevStateRoot, _ := s.initChain(ctx, initialHeight)
 
 	for i := initialHeight; i <= 10; i++ {
 		txs, err := s.Exec.GetTxs(ctx)
 		s.Require().NoError(err)
 
 		blockTime := genesisTime.Add(time.Duration(i+1) * time.Second) //nolint:gosec
-		stateRoot, maxBytes, err = s.Exec.ExecuteTxs(ctx, txs, i, blockTime, stateRoot)
+		stateRoot, maxBytes, err := s.Exec.ExecuteTxs(ctx, txs, i, blockTime, prevStateRoot)
 		s.Require().NoError(err)
 		s.Require().NotZero(maxBytes)
+		s.Require().NotEqual(prevStateRoot, stateRoot)
+
+		prevStateRoot = stateRoot
 
 		err = s.Exec.SetFinal(ctx, i)
 		s.Require().NoError(err)
