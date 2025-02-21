@@ -3,6 +3,7 @@ package test
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/stretchr/testify/suite"
@@ -92,16 +93,14 @@ func (s *ExecutorSuite) TestExecuteTxs() {
 		},
 	}
 
-	for _, c := range cases {
+	for i, c := range cases {
 		s.Run(c.name, func() {
-			initialHeight := uint64(1)
-
 			ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 			defer cancel()
 
-			genesisTime, genesisStateRoot, _ := s.initChain(ctx, initialHeight)
+			genesisTime, genesisStateRoot, _ := s.initChain(ctx, uint64(i+1))
 
-			stateRoot, maxBytes, err := s.Exec.ExecuteTxs(ctx, c.txs, initialHeight, genesisTime.Add(time.Second), genesisStateRoot)
+			stateRoot, maxBytes, err := s.Exec.ExecuteTxs(ctx, c.txs, uint64(1), genesisTime.Add(time.Second), genesisStateRoot)
 			s.Require().NoError(err)
 			s.Require().NotEmpty(stateRoot)
 			s.Require().NotEqual(c.stateRootChanged, bytes.Equal(genesisStateRoot, stateRoot))
@@ -154,7 +153,7 @@ func (s *ExecutorSuite) TestMultipleBlocks() {
 
 func (s *ExecutorSuite) initChain(ctx context.Context, initialHeight uint64) (time.Time, types.Hash, uint64) {
 	genesisTime := time.Now().UTC()
-	chainID := "test-chain"
+	chainID := fmt.Sprintf("test-chain-%d", initialHeight)
 
 	stateRoot, maxBytes, err := s.Exec.InitChain(ctx, genesisTime, initialHeight, chainID)
 	s.Require().NoError(err)
