@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/sha512"
-	"fmt"
+	"regexp"
 	"slices"
 	"sync"
 	"time"
@@ -12,9 +12,11 @@ import (
 	"github.com/rollkit/go-execution/types"
 )
 
+var validChainIDRegex = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9-]*`)
+
 // DummyExecutor is a dummy implementation of the DummyExecutor interface for testing
 type DummyExecutor struct {
-	mu           sync.RWMutex // Add mutex for thread safety
+	mu           sync.RWMutex
 	stateRoot    types.Hash
 	pendingRoots map[uint64]types.Hash
 	maxBytes     uint64
@@ -36,6 +38,22 @@ func (e *DummyExecutor) InitChain(ctx context.Context, genesisTime time.Time, in
 	e.mu.Lock()
 	defer e.mu.Unlock()
 
+	if initialHeight == 0 {
+		return types.Hash{}, 0, types.ErrZeroInitialHeight
+	}
+	if chainID == "" {
+		return types.Hash{}, 0, types.ErrEmptyChainID
+	}
+	if !validChainIDRegex.MatchString(chainID) {
+		return types.Hash{}, 0, types.ErrInvalidChainID
+	}
+	if genesisTime.After(time.Now()) {
+		return types.Hash{}, 0, types.ErrFutureGenesisTime
+	}
+	if len(chainID) > 32 {
+		return types.Hash{}, 0, types.ErrChainIDTooLong
+	}
+
 	hash := sha512.New()
 	hash.Write(e.stateRoot)
 	e.stateRoot = hash.Sum(nil)
@@ -48,7 +66,7 @@ func (e *DummyExecutor) GetTxs(context.Context) ([]types.Tx, error) {
 	defer e.mu.RUnlock()
 
 	txs := make([]types.Tx, len(e.injectedTxs))
-	copy(txs, e.injectedTxs) // Create a copy to avoid external modifications
+	copy(txs, e.injectedTxs)
 	return txs, nil
 }
 
@@ -64,6 +82,28 @@ func (e *DummyExecutor) InjectTx(tx types.Tx) {
 func (e *DummyExecutor) ExecuteTxs(ctx context.Context, txs []types.Tx, blockHeight uint64, timestamp time.Time, prevStateRoot types.Hash) (types.Hash, uint64, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
+
+	if bytes.Equal(prevStateRoot, types.Hash{}) {
+		return types.Hash{}, 0, types.ErrEmptyStateRoot
+	}
+
+	// Don't really allow future block times, but allow up to 5 minutes in the future
+	// for testing purposes.
+	if timestamp.After(time.Now().Add(5 * time.Minute)) {
+		return types.Hash{}, 0, types.ErrFutureBlockTime
+	}
+	if blockHeight == 0 {
+		return types.Hash{}, 0, types.ErrInvalidBlockHeight
+	}
+
+	for _, tx := range txs {
+		if len(tx) == 0 {
+			return types.Hash{}, 0, types.ErrEmptyTx
+		}
+		if uint64(len(tx)) > e.maxBytes {
+			return types.Hash{}, 0, types.ErrTxTooLarge
+		}
+	}
 
 	hash := sha512.New()
 	hash.Write(prevStateRoot)
@@ -86,7 +126,7 @@ func (e *DummyExecutor) SetFinal(ctx context.Context, blockHeight uint64) error 
 		delete(e.pendingRoots, blockHeight)
 		return nil
 	}
-	return fmt.Errorf("cannot set finalized block at height %d", blockHeight)
+	return types.ErrBlockNotFound
 }
 
 func (e *DummyExecutor) removeExecutedTxs(txs []types.Tx) {
