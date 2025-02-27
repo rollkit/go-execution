@@ -21,7 +21,8 @@ type ExecutorSuite struct {
 
 // TxInjector provides an interface for injecting transactions into a test suite.
 type TxInjector interface {
-	InjectRandomTx() types.Tx
+	GetRandomTxs(n int) []types.Tx
+	InjectTxs(tx []types.Tx) error
 }
 
 // TestInitChain tests InitChain method.
@@ -52,13 +53,16 @@ func (s *ExecutorSuite) TestGetTxs() {
 	s.Require().Empty(txs)
 
 	// inject two txs and retrieve them
-	tx1 := s.TxInjector.InjectRandomTx()
-	tx2 := s.TxInjector.InjectRandomTx()
-	txs, err = s.Exec.GetTxs(ctx)
+	// inject two txs and retrieve them using GetRandomTxs and InjectTxs
+	randomTxs := s.TxInjector.GetRandomTxs(2) // Retrieve 2 random transactions
+	err = s.TxInjector.InjectTxs(randomTxs)   // Inject the transactions into the state
+	s.Require().NoError(err)
+
+	txs, err = s.Exec.GetTxs(ctx) // Retrieve transactions from the executor
 	s.Require().NoError(err)
 	s.Require().Len(txs, 2)
-	s.Require().Contains(txs, tx1)
-	s.Require().Contains(txs, tx2)
+	s.Require().Contains(txs, randomTxs[0])
+	s.Require().Contains(txs, randomTxs[1])
 }
 
 func (s *ExecutorSuite) skipIfInjectorNotSet() {
@@ -77,34 +81,41 @@ func (s *ExecutorSuite) TestExecuteTxs() {
 		stateRootChanged bool
 	}{
 		{
-			name:             "nil txs",
-			txs:              nil,
-			stateRootChanged: false,
-		},
-		{
 			name:             "empty txs",
 			txs:              []types.Tx{},
 			stateRootChanged: false,
 		},
 		{
+			name:             "nil txs",
+			txs:              nil,
+			stateRootChanged: false,
+		},
+		{
 			name:             "two txs",
-			txs:              []types.Tx{s.TxInjector.InjectRandomTx(), s.TxInjector.InjectRandomTx()},
+			txs:              s.TxInjector.GetRandomTxs(2),
 			stateRootChanged: true,
 		},
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	genesisTime, lastStateRoot, _ := s.initChain(ctx, uint64(1))
+
 	for i, c := range cases {
 		s.Run(c.name, func() {
-			ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-			defer cancel()
-
-			genesisTime, genesisStateRoot, _ := s.initChain(ctx, uint64(i+1))
-
-			stateRoot, maxBytes, err := s.Exec.ExecuteTxs(ctx, c.txs, uint64(1), genesisTime.Add(time.Second), genesisStateRoot)
+			err := s.TxInjector.InjectTxs(c.txs)
+			s.Require().NoError(err)
+			txs, _ := s.Exec.GetTxs(ctx)
+			fmt.Println(len(txs))
+			stateRoot, maxBytes, err := s.Exec.ExecuteTxs(ctx, c.txs, uint64(i+1), genesisTime.Add(time.Duration(i)*time.Second), lastStateRoot)
 			s.Require().NoError(err)
 			s.Require().NotEmpty(stateRoot)
-			s.Require().NotEqual(c.stateRootChanged, bytes.Equal(genesisStateRoot, stateRoot))
+			s.Assert().Equal(c.stateRootChanged, !bytes.Equal(lastStateRoot, stateRoot))
 			s.Require().Greater(maxBytes, uint64(0))
+			lastStateRoot = stateRoot
+			s.Exec.SetFinal(ctx, uint64(i+1))
+			time.Sleep(3 * time.Second)
 		})
 	}
 }
@@ -134,7 +145,8 @@ func (s *ExecutorSuite) TestMultipleBlocks() {
 	genesisTime, prevStateRoot, _ := s.initChain(ctx, initialHeight)
 
 	for i := initialHeight; i <= 10; i++ {
-		s.TxInjector.InjectRandomTx()
+		err := s.TxInjector.InjectTxs(s.TxInjector.GetRandomTxs(2))
+		s.Require().NoError(err)
 		txs, err := s.Exec.GetTxs(ctx)
 		s.Require().NoError(err)
 
@@ -142,7 +154,7 @@ func (s *ExecutorSuite) TestMultipleBlocks() {
 		stateRoot, maxBytes, err := s.Exec.ExecuteTxs(ctx, txs, i, blockTime, prevStateRoot)
 		s.Require().NoError(err)
 		s.Require().NotZero(maxBytes)
-		s.Require().NotEqual(prevStateRoot, stateRoot)
+		s.Assert().NotEqual(prevStateRoot, stateRoot)
 
 		prevStateRoot = stateRoot
 

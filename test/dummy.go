@@ -54,16 +54,23 @@ func (e *DummyExecutor) GetTxs(context.Context) ([]types.Tx, error) {
 	return txs, nil
 }
 
-// InjectRandomTx adds a transaction to the internal list of injected transactions in the DummyExecutor instance.
-func (e *DummyExecutor) InjectRandomTx() types.Tx {
+// GetRandomTxs generates a slice of n random transactions (types.Tx), each containing 100 random bytes.
+func (e *DummyExecutor) GetRandomTxs(n int) []types.Tx {
+	txs := make([]types.Tx, n)
+	for i := 0; i < n; i++ {
+		txs[i] = mustGetRandomBytes(100)
+	}
+	return txs
+}
+
+// InjectTxs adds a slice of transactions to the internal list of injected transactions in a thread-safe manner.
+func (e *DummyExecutor) InjectTxs(txs []types.Tx) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 
-	tx := types.Tx(mustGetRandomBytes(100))
-	e.injectedTxs = append(e.injectedTxs, tx)
-	return tx
+	e.injectedTxs = append(e.injectedTxs, txs...)
+	return nil
 }
-
 func mustGetRandomBytes(n int) []byte {
 	b := make([]byte, n)
 	_, err := rand.Read(b)

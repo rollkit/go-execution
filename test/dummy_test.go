@@ -28,16 +28,22 @@ func TestDummySuite(t *testing.T) {
 func TestTxRemoval(t *testing.T) {
 	exec := NewDummyExecutor()
 
-	tx1 := exec.InjectRandomTx()
-	tx2 := exec.InjectRandomTx()
+	// Generate random transactions using GetRandomTxs
+	randomTxs := exec.GetRandomTxs(2)
 
-	// first execution of GetTxs - nothing special
+	// Inject the random transactions into the executor
+	err := exec.InjectTxs(randomTxs)
+	require.NoError(t, err)
+
+	tx1 := randomTxs[0]
+	tx2 := randomTxs[1]
+
+	// Retrieve transactions and verify
 	txs, err := exec.GetTxs(context.Background())
 	require.NoError(t, err)
 	require.Len(t, txs, 2)
-	require.Contains(t, txs, tx1)
-	require.Contains(t, txs, tx2)
-
+	require.Contains(t, txs, randomTxs[0])
+	require.Contains(t, txs, randomTxs[1])
 	// ExecuteTxs was not called, so 2 txs should still be returned
 	txs, err = exec.GetTxs(context.Background())
 	require.NoError(t, err)
