@@ -137,7 +137,7 @@ func (s *ExecutorSuite) TestSetFinal() {
 	s.Require().NoError(err)
 }
 
-// TestMultipleBlocks is a basic test ensuring that all API methods used together can be used to produce multiple blocks.
+// TestMultipleBlocks is a basic test ensuring that all API methods used together can be used to produce multiple fresh blocks.
 func (s *ExecutorSuite) TestMultipleBlocks() {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -149,6 +149,29 @@ func (s *ExecutorSuite) TestMultipleBlocks() {
 		s.Require().NoError(err)
 		txs, err := s.Exec.GetTxs(ctx)
 		s.Require().NoError(err)
+
+		blockTime := genesisTime.Add(time.Duration(i+1) * time.Second) //nolint:gosec
+		stateRoot, maxBytes, err := s.Exec.ExecuteTxs(ctx, txs, i, blockTime, prevStateRoot)
+		s.Require().NoError(err)
+		s.Require().NotZero(maxBytes)
+		s.Assert().NotEqual(prevStateRoot, stateRoot)
+
+		prevStateRoot = stateRoot
+
+		err = s.Exec.SetFinal(ctx, i)
+		s.Require().NoError(err)
+	}
+}
+
+// TestSyncScenario is a basic test ensuring that all API methods used together can be used to sync multiple blocks without injecting transactions to mempool.
+func (s *ExecutorSuite) TestSyncScenario() {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	initialHeight := uint64(1)
+	genesisTime, prevStateRoot, _ := s.initChain(ctx, initialHeight)
+
+	for i := initialHeight; i <= 10; i++ {
+		txs := s.TxInjector.GetRandomTxs(2)
 
 		blockTime := genesisTime.Add(time.Duration(i+1) * time.Second) //nolint:gosec
 		stateRoot, maxBytes, err := s.Exec.ExecuteTxs(ctx, txs, i, blockTime, prevStateRoot)

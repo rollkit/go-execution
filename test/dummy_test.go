@@ -214,7 +214,7 @@ func (s *DummyTestSuite) TestGetTxsWithConcurrency() {
 			defer wg.Done()
 			for j := 0; j < txsPerGoroutine; j++ {
 				tx := types.Tx([]byte(fmt.Sprintf("tx-%d-%d", id, j)))
-				s.TxInjector.InjectTx(tx)
+				s.Require().NoError(s.TxInjector.InjectTxs([]types.Tx{tx}))
 			}
 		}(i)
 	}
